@@ -65,8 +65,29 @@ public:
     // Remove node from free list by updating pointers between adjacent nodes.
     DLLNode* remove_node(DLLNode* node)
     {
-        //placeholder
-        return node;
+        if (node_count == 1)
+        {
+            head_node = nullptr;
+            node_count--;
+            return node;
+        }
+
+        if (node->prev == nullptr)
+        {
+            head_node = node->next;
+        }
+        else
+        {
+            node->prev->next = node->next;
+        }
+
+        if (node->next != nullptr)
+        {
+            node->next->prev = node->prev;
+        }
+
+        node_count--;
+        return node;        
     }
 
     // Returns number of nodes in free list.
@@ -111,7 +132,7 @@ private:
     std::size_t node_count = 0;
 
     // First node in the free list.
-    DLLNode* head_node;
+    DLLNode* head_node = nullptr;
 
 }; // class FreeList
 
