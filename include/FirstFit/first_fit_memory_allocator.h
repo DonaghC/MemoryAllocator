@@ -12,6 +12,9 @@ class FirstFitMemoryAllocator : public MemoryAllocator
 {
 public:
 
+    // Type of free list node;
+    using FLNode = FreeList::DLLNode;
+
     // Constructor that takes in a reference to a memory buffer of template type T.
     template <class T>
     FirstFitMemoryAllocator(T& buffer) : 
@@ -35,7 +38,7 @@ public:
     }
 
     // Deallocate a block of memory to free it up for re-allocation.
-    void deallocate(FLNode* addr)
+    void deallocate(void* addr)
     {
 
     }
