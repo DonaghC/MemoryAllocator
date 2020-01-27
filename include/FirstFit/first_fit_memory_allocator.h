@@ -33,48 +33,32 @@ public:
     // Allocate a number of bytes and return the address of the allocation.
     void* allocate(std::size_t bytes)
     {
-        /*
-        for every node in fl:
-            3 cases:
-                if node doesn't have enough space:
-                    check next node
-                if node has enough space but not enough for another node:
-                    remove node from fl
-                    allocated bytes += bytes
-                    return address right after allocated node (so the memory)
-                if node has enough space for allocation and new node:
-                    remove node from fl
-                    allocated bytes += bytes + nodesize
-                    create newnode after allocated memory
-                    newnode.value = node.value - bytes - nodesize
-                    add newnode to fl
-                    return address right after allocated node (so the memory)
-        return nullptr
-        */
-
-        FLNode* cursor = free_list.head();
-        while (cursor != nullptr)
+        if (bytes > 0)
         {
-            if (cursor->value < bytes)
+            FLNode* cursor = free_list.head();
+            while (cursor != nullptr)
             {
-                cursor = cursor->next;
-            }
-            else if (cursor->value >= bytes + node_size)
-            {
-                free_list.remove_node(cursor);
-                allocated_bytes += bytes + node_size;
+                if (cursor->value < bytes)
+                {
+                    cursor = cursor->next;
+                }
+                else if (cursor->value >= bytes + node_size)
+                {
+                    free_list.remove_node(cursor);
+                    allocated_bytes += bytes + node_size;
 
-                void* curr_node_addr = reinterpret_cast<void*>(cursor);
-                FLNode* newnode = reinterpret_cast<FLNode*>(curr_node_addr + bytes + node_size);
-                newnode->value = cursor->value - bytes - node_size;
-                free_list.add_node(newnode);
-                return reinterpret_cast<FLNode*>(curr_node_addr + node_size);
-            }
-            else
-            {
-                free_list.remove_node(cursor);
-                allocated_bytes += bytes;
-                return reinterpret_cast<FLNode*>(reinterpret_cast<void*>(cursor) + node_size);
+                    void* curr_node_addr = reinterpret_cast<void*>(cursor);
+                    FLNode* newnode = reinterpret_cast<FLNode*>(curr_node_addr + bytes + node_size);
+                    newnode->value = cursor->value - bytes - node_size;
+                    free_list.add_node(newnode);
+                    return reinterpret_cast<FLNode*>(curr_node_addr + node_size);
+                }
+                else
+                {
+                    free_list.remove_node(cursor);
+                    allocated_bytes += bytes;
+                    return reinterpret_cast<FLNode*>(reinterpret_cast<void*>(cursor) + node_size);
+                }
             }
         }
 
@@ -84,25 +68,6 @@ public:
     // Deallocate a block of memory to free it up for re-allocation.
     void deallocate(void* addr)
     {
-      /*
-      cases:
-        1- no merging needed
-            add newnode to fl
-            allocated_bytes -= newnode.value
-        2- merge with prev
-            prevnode.value += nodesize + newnode.value
-            allocated_bytes -= nodesize - newnode.value
-        3- merge with next
-            add newnode to fl
-            remove nextnode from fl
-            allocated_bytes -= nodesize - newnode.value
-            newnode.value += nodesize + nextnode.value
-        4- merge with prev and next
-            prevnode.value += 2*nodesize + newnode.value + nextnode.value
-            remove nextnode from fl
-            allocated_bytes -= 2*nodesize - newnode.value
-      */
-
         void* newnode_addr = addr - node_size;
         FLNode* node = reinterpret_cast<FLNode*>(newnode_addr);
         free_list.add_node(node); // to update prev and next
@@ -152,6 +117,11 @@ public:
     std::size_t length() const
     {
         return total_bytes;
+    }
+
+    const FreeList get_free_list() const
+    {
+        return free_list;
     }
 
     // Size of free list node in bytes.
