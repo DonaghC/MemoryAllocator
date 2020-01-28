@@ -110,14 +110,14 @@ private:
     {
         DLLNode* cursor = head_node;
 
-        if (cursor->value > new_node->value)
+        if (cursor > new_node)
         {
             return nullptr;
         }
 
         while (cursor->next != nullptr)
         {
-            if (cursor->next->value > new_node->value)
+            if (cursor->next > new_node)
             {
                 return cursor;
             }
