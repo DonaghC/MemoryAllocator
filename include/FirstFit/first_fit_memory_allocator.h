@@ -27,7 +27,7 @@ public:
     {
         FLNode* start_node = reinterpret_cast<FLNode*>(mem);
         start_node->value = total_bytes - node_size;
-        free_list.add_node(start_node);
+        fl.add_node(start_node);
     }
 
     // Allocate a number of bytes and return the address of the allocation.
@@ -35,7 +35,7 @@ public:
     {
         if (bytes > 0)
         {
-            FLNode* cursor = free_list.head();
+            FLNode* cursor = fl.head();
             while (cursor != nullptr)
             {
                 if (cursor->value < bytes)
@@ -44,18 +44,22 @@ public:
                 }
                 else if (cursor->value >= bytes + node_size)
                 {
-                    free_list.remove_node(cursor);
+                    fl.remove_node(cursor);
                     allocated_bytes += bytes + node_size;
 
                     void* curr_node_addr = reinterpret_cast<void*>(cursor);
                     FLNode* newnode = reinterpret_cast<FLNode*>(curr_node_addr + bytes + node_size);
                     newnode->value = cursor->value - bytes - node_size;
-                    free_list.add_node(newnode);
+                    fl.add_node(newnode);
+
+                    cursor->value = bytes;
+
                     return reinterpret_cast<FLNode*>(curr_node_addr + node_size);
                 }
                 else
                 {
-                    free_list.remove_node(cursor);
+                    cursor->value = bytes;
+                    fl.remove_node(cursor);
                     allocated_bytes += bytes;
                     return reinterpret_cast<FLNode*>(reinterpret_cast<void*>(cursor) + node_size);
                 }
@@ -70,33 +74,37 @@ public:
     {
         void* newnode_addr = addr - node_size;
         FLNode* node = reinterpret_cast<FLNode*>(newnode_addr);
-        free_list.add_node(node); // to update prev and next
+        fl.add_node(node); // to update prev and next
 
-        void* nextnode_addr = reinterpret_cast<void*>(node->next);
-        void* prevnode_addr = reinterpret_cast<void*>(node->prev);
+        bool merge_with_prev = false;
+        bool merge_with_next = false;
+        
+        if (node->prev != nullptr)
+        {
+            merge_with_prev = (newnode_addr - node->prev->value - node_size == node->prev);
+        }
 
-        void* newnode_end = newnode_addr + node->value;        
-        void* prevnode_end = prevnode_addr + node->prev->value;
-
-        bool merge_with_next = newnode_end == nextnode_addr;
-        bool merge_with_prev = prevnode_end == newnode_addr;
+        if (node->next != nullptr)
+        {
+            merge_with_next = newnode_addr + node_size + node->value == node->next;
+        }
         
         if (merge_with_next && merge_with_prev)
         {
-            free_list.remove_node(node);
+            fl.remove_node(node);
             node->prev->value += (2*node_size) + node->value + node->next->value;
-            free_list.remove_node(node->next);
+            fl.remove_node(node->next);
             allocated_bytes -= (2*node_size + node->value);
         }
         else if (merge_with_next)
         {
-            FLNode* removed = free_list.remove_node(node->next);
+            FLNode* removed = fl.remove_node(node->next);
             allocated_bytes -= (node_size + node->value);
             node->value += node_size + removed->value;
         }
         else if (merge_with_prev)
         {
-            free_list.remove_node(node);
+            fl.remove_node(node);
             node->prev->value += node_size + node->value;
             allocated_bytes -= (node_size + node->value);
         }
@@ -104,7 +112,7 @@ public:
         {
             allocated_bytes -= node->value;
         }
-        
+
     }
 
     // Returns number of bytes allocated to memory buffer.
@@ -119,9 +127,10 @@ public:
         return total_bytes;
     }
 
-    const FreeList get_free_list() const
+    // Return free list.
+    FreeList free_list() const
     {
-        return free_list;
+        return fl;
     }
 
     // Size of free list node in bytes.
@@ -133,7 +142,7 @@ private:
     void* mem;
 
     // Free list to keep track of all unallocated blocks of memory.
-    FreeList free_list;
+    FreeList fl;
 
     // Number of bytes used in memory buffer.
     std::size_t allocated_bytes;
