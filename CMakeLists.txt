@@ -12,6 +12,10 @@ include_directories("external/googletest/googletest/include/")
 #target_link_libraries(firstfit_freelist_test gtest gtest_main)
 #add_test(firstfit_freelist_test firstfit_freelist_test)
 
-add_executable(firstfit_test test/FirstFit/first_fit_tests.cpp)
-target_link_libraries(firstfit_test gtest gtest_main)
-add_test(firstfit_test firstfit_test)
+#add_executable(firstfit_test test/FirstFit/first_fit_tests.cpp)
+#target_link_libraries(firstfit_test gtest gtest_main)
+#add_test(firstfit_test firstfit_test)
+
+add_executable(performance_tests test/performance_tests.cpp)
+target_link_libraries(performance_tests gtest gtest_main)
+add_test(performance_tests performance_tests)
