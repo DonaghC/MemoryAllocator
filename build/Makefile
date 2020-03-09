@@ -56,16 +56,29 @@ CMAKE_BINARY_DIR = /home/donagh/Documents/FYP/build
 #=============================================================================
 # Targets provided globally by CMake.
 
-# Special rule for the target rebuild_cache
-rebuild_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
-	/usr/bin/cmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
-.PHONY : rebuild_cache
+# Special rule for the target install/strip
+install/strip: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
+	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip
 
-# Special rule for the target rebuild_cache
-rebuild_cache/fast: rebuild_cache
+# Special rule for the target install/strip
+install/strip/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
+	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip/fast
 
-.PHONY : rebuild_cache/fast
+# Special rule for the target install
+install: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install
+
+# Special rule for the target install
+install/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install/fast
 
 # Special rule for the target edit_cache
 edit_cache:
@@ -77,6 +90,50 @@ edit_cache:
 edit_cache/fast: edit_cache
 
 .PHONY : edit_cache/fast
+
+# Special rule for the target list_install_components
+list_install_components:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Available install components are: \"Unspecified\""
+.PHONY : list_install_components
+
+# Special rule for the target list_install_components
+list_install_components/fast: list_install_components
+
+.PHONY : list_install_components/fast
+
+# Special rule for the target rebuild_cache
+rebuild_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
+	/usr/bin/cmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+.PHONY : rebuild_cache
+
+# Special rule for the target rebuild_cache
+rebuild_cache/fast: rebuild_cache
+
+.PHONY : rebuild_cache/fast
+
+# Special rule for the target install/local
+install/local: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local
+
+# Special rule for the target install/local
+install/local/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local/fast
+
+# Special rule for the target test
+test:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running tests..."
+	/usr/bin/ctest --force-new-ctest-process $(ARGS)
+.PHONY : test
+
+# Special rule for the target test
+test/fast: test
+
+.PHONY : test/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -110,14 +167,295 @@ depend:
 	$(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
+#=============================================================================
+# Target rules for targets named firstfit_test
+
+# Build rule for target.
+firstfit_test: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 firstfit_test
+.PHONY : firstfit_test
+
+# fast build rule for target.
+firstfit_test/fast:
+	$(MAKE) -f CMakeFiles/firstfit_test.dir/build.make CMakeFiles/firstfit_test.dir/build
+.PHONY : firstfit_test/fast
+
+#=============================================================================
+# Target rules for targets named performance_tests
+
+# Build rule for target.
+performance_tests: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 performance_tests
+.PHONY : performance_tests
+
+# fast build rule for target.
+performance_tests/fast:
+	$(MAKE) -f CMakeFiles/performance_tests.dir/build.make CMakeFiles/performance_tests.dir/build
+.PHONY : performance_tests/fast
+
+#=============================================================================
+# Target rules for targets named firstfit_freelist_test
+
+# Build rule for target.
+firstfit_freelist_test: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 firstfit_freelist_test
+.PHONY : firstfit_freelist_test
+
+# fast build rule for target.
+firstfit_freelist_test/fast:
+	$(MAKE) -f CMakeFiles/firstfit_freelist_test.dir/build.make CMakeFiles/firstfit_freelist_test.dir/build
+.PHONY : firstfit_freelist_test/fast
+
+#=============================================================================
+# Target rules for targets named nextfit_test
+
+# Build rule for target.
+nextfit_test: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 nextfit_test
+.PHONY : nextfit_test
+
+# fast build rule for target.
+nextfit_test/fast:
+	$(MAKE) -f CMakeFiles/nextfit_test.dir/build.make CMakeFiles/nextfit_test.dir/build
+.PHONY : nextfit_test/fast
+
+#=============================================================================
+# Target rules for targets named poolallocation_test
+
+# Build rule for target.
+poolallocation_test: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 poolallocation_test
+.PHONY : poolallocation_test
+
+# fast build rule for target.
+poolallocation_test/fast:
+	$(MAKE) -f CMakeFiles/poolallocation_test.dir/build.make CMakeFiles/poolallocation_test.dir/build
+.PHONY : poolallocation_test/fast
+
+#=============================================================================
+# Target rules for targets named gmock_main
+
+# Build rule for target.
+gmock_main: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 gmock_main
+.PHONY : gmock_main
+
+# fast build rule for target.
+gmock_main/fast:
+	$(MAKE) -f external/googletest/googlemock/CMakeFiles/gmock_main.dir/build.make external/googletest/googlemock/CMakeFiles/gmock_main.dir/build
+.PHONY : gmock_main/fast
+
+#=============================================================================
+# Target rules for targets named gmock
+
+# Build rule for target.
+gmock: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 gmock
+.PHONY : gmock
+
+# fast build rule for target.
+gmock/fast:
+	$(MAKE) -f external/googletest/googlemock/CMakeFiles/gmock.dir/build.make external/googletest/googlemock/CMakeFiles/gmock.dir/build
+.PHONY : gmock/fast
+
+#=============================================================================
+# Target rules for targets named gtest_main
+
+# Build rule for target.
+gtest_main: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 gtest_main
+.PHONY : gtest_main
+
+# fast build rule for target.
+gtest_main/fast:
+	$(MAKE) -f external/googletest/googletest/CMakeFiles/gtest_main.dir/build.make external/googletest/googletest/CMakeFiles/gtest_main.dir/build
+.PHONY : gtest_main/fast
+
+#=============================================================================
+# Target rules for targets named gtest
+
+# Build rule for target.
+gtest: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 gtest
+.PHONY : gtest
+
+# fast build rule for target.
+gtest/fast:
+	$(MAKE) -f external/googletest/googletest/CMakeFiles/gtest.dir/build.make external/googletest/googletest/CMakeFiles/gtest.dir/build
+.PHONY : gtest/fast
+
+test/FirstFit/first_fit_tests.o: test/FirstFit/first_fit_tests.cpp.o
+
+.PHONY : test/FirstFit/first_fit_tests.o
+
+# target to build an object file
+test/FirstFit/first_fit_tests.cpp.o:
+	$(MAKE) -f CMakeFiles/firstfit_test.dir/build.make CMakeFiles/firstfit_test.dir/test/FirstFit/first_fit_tests.cpp.o
+.PHONY : test/FirstFit/first_fit_tests.cpp.o
+
+test/FirstFit/first_fit_tests.i: test/FirstFit/first_fit_tests.cpp.i
+
+.PHONY : test/FirstFit/first_fit_tests.i
+
+# target to preprocess a source file
+test/FirstFit/first_fit_tests.cpp.i:
+	$(MAKE) -f CMakeFiles/firstfit_test.dir/build.make CMakeFiles/firstfit_test.dir/test/FirstFit/first_fit_tests.cpp.i
+.PHONY : test/FirstFit/first_fit_tests.cpp.i
+
+test/FirstFit/first_fit_tests.s: test/FirstFit/first_fit_tests.cpp.s
+
+.PHONY : test/FirstFit/first_fit_tests.s
+
+# target to generate assembly for a file
+test/FirstFit/first_fit_tests.cpp.s:
+	$(MAKE) -f CMakeFiles/firstfit_test.dir/build.make CMakeFiles/firstfit_test.dir/test/FirstFit/first_fit_tests.cpp.s
+.PHONY : test/FirstFit/first_fit_tests.cpp.s
+
+test/FirstFit/free_list_tests.o: test/FirstFit/free_list_tests.cpp.o
+
+.PHONY : test/FirstFit/free_list_tests.o
+
+# target to build an object file
+test/FirstFit/free_list_tests.cpp.o:
+	$(MAKE) -f CMakeFiles/firstfit_freelist_test.dir/build.make CMakeFiles/firstfit_freelist_test.dir/test/FirstFit/free_list_tests.cpp.o
+.PHONY : test/FirstFit/free_list_tests.cpp.o
+
+test/FirstFit/free_list_tests.i: test/FirstFit/free_list_tests.cpp.i
+
+.PHONY : test/FirstFit/free_list_tests.i
+
+# target to preprocess a source file
+test/FirstFit/free_list_tests.cpp.i:
+	$(MAKE) -f CMakeFiles/firstfit_freelist_test.dir/build.make CMakeFiles/firstfit_freelist_test.dir/test/FirstFit/free_list_tests.cpp.i
+.PHONY : test/FirstFit/free_list_tests.cpp.i
+
+test/FirstFit/free_list_tests.s: test/FirstFit/free_list_tests.cpp.s
+
+.PHONY : test/FirstFit/free_list_tests.s
+
+# target to generate assembly for a file
+test/FirstFit/free_list_tests.cpp.s:
+	$(MAKE) -f CMakeFiles/firstfit_freelist_test.dir/build.make CMakeFiles/firstfit_freelist_test.dir/test/FirstFit/free_list_tests.cpp.s
+.PHONY : test/FirstFit/free_list_tests.cpp.s
+
+test/NextFit/next_fit_tests.o: test/NextFit/next_fit_tests.cpp.o
+
+.PHONY : test/NextFit/next_fit_tests.o
+
+# target to build an object file
+test/NextFit/next_fit_tests.cpp.o:
+	$(MAKE) -f CMakeFiles/nextfit_test.dir/build.make CMakeFiles/nextfit_test.dir/test/NextFit/next_fit_tests.cpp.o
+.PHONY : test/NextFit/next_fit_tests.cpp.o
+
+test/NextFit/next_fit_tests.i: test/NextFit/next_fit_tests.cpp.i
+
+.PHONY : test/NextFit/next_fit_tests.i
+
+# target to preprocess a source file
+test/NextFit/next_fit_tests.cpp.i:
+	$(MAKE) -f CMakeFiles/nextfit_test.dir/build.make CMakeFiles/nextfit_test.dir/test/NextFit/next_fit_tests.cpp.i
+.PHONY : test/NextFit/next_fit_tests.cpp.i
+
+test/NextFit/next_fit_tests.s: test/NextFit/next_fit_tests.cpp.s
+
+.PHONY : test/NextFit/next_fit_tests.s
+
+# target to generate assembly for a file
+test/NextFit/next_fit_tests.cpp.s:
+	$(MAKE) -f CMakeFiles/nextfit_test.dir/build.make CMakeFiles/nextfit_test.dir/test/NextFit/next_fit_tests.cpp.s
+.PHONY : test/NextFit/next_fit_tests.cpp.s
+
+test/PoolAllocation/pool_allocation_tests.o: test/PoolAllocation/pool_allocation_tests.cpp.o
+
+.PHONY : test/PoolAllocation/pool_allocation_tests.o
+
+# target to build an object file
+test/PoolAllocation/pool_allocation_tests.cpp.o:
+	$(MAKE) -f CMakeFiles/poolallocation_test.dir/build.make CMakeFiles/poolallocation_test.dir/test/PoolAllocation/pool_allocation_tests.cpp.o
+.PHONY : test/PoolAllocation/pool_allocation_tests.cpp.o
+
+test/PoolAllocation/pool_allocation_tests.i: test/PoolAllocation/pool_allocation_tests.cpp.i
+
+.PHONY : test/PoolAllocation/pool_allocation_tests.i
+
+# target to preprocess a source file
+test/PoolAllocation/pool_allocation_tests.cpp.i:
+	$(MAKE) -f CMakeFiles/poolallocation_test.dir/build.make CMakeFiles/poolallocation_test.dir/test/PoolAllocation/pool_allocation_tests.cpp.i
+.PHONY : test/PoolAllocation/pool_allocation_tests.cpp.i
+
+test/PoolAllocation/pool_allocation_tests.s: test/PoolAllocation/pool_allocation_tests.cpp.s
+
+.PHONY : test/PoolAllocation/pool_allocation_tests.s
+
+# target to generate assembly for a file
+test/PoolAllocation/pool_allocation_tests.cpp.s:
+	$(MAKE) -f CMakeFiles/poolallocation_test.dir/build.make CMakeFiles/poolallocation_test.dir/test/PoolAllocation/pool_allocation_tests.cpp.s
+.PHONY : test/PoolAllocation/pool_allocation_tests.cpp.s
+
+test/performance_tests.o: test/performance_tests.cpp.o
+
+.PHONY : test/performance_tests.o
+
+# target to build an object file
+test/performance_tests.cpp.o:
+	$(MAKE) -f CMakeFiles/performance_tests.dir/build.make CMakeFiles/performance_tests.dir/test/performance_tests.cpp.o
+.PHONY : test/performance_tests.cpp.o
+
+test/performance_tests.i: test/performance_tests.cpp.i
+
+.PHONY : test/performance_tests.i
+
+# target to preprocess a source file
+test/performance_tests.cpp.i:
+	$(MAKE) -f CMakeFiles/performance_tests.dir/build.make CMakeFiles/performance_tests.dir/test/performance_tests.cpp.i
+.PHONY : test/performance_tests.cpp.i
+
+test/performance_tests.s: test/performance_tests.cpp.s
+
+.PHONY : test/performance_tests.s
+
+# target to generate assembly for a file
+test/performance_tests.cpp.s:
+	$(MAKE) -f CMakeFiles/performance_tests.dir/build.make CMakeFiles/performance_tests.dir/test/performance_tests.cpp.s
+.PHONY : test/performance_tests.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
-	@echo "... rebuild_cache"
+	@echo "... install/strip"
+	@echo "... install"
 	@echo "... edit_cache"
+	@echo "... firstfit_test"
+	@echo "... performance_tests"
+	@echo "... firstfit_freelist_test"
+	@echo "... list_install_components"
+	@echo "... nextfit_test"
+	@echo "... rebuild_cache"
+	@echo "... poolallocation_test"
+	@echo "... install/local"
+	@echo "... test"
+	@echo "... gmock_main"
+	@echo "... gmock"
+	@echo "... gtest_main"
+	@echo "... gtest"
+	@echo "... test/FirstFit/first_fit_tests.o"
+	@echo "... test/FirstFit/first_fit_tests.i"
+	@echo "... test/FirstFit/first_fit_tests.s"
+	@echo "... test/FirstFit/free_list_tests.o"
+	@echo "... test/FirstFit/free_list_tests.i"
+	@echo "... test/FirstFit/free_list_tests.s"
+	@echo "... test/NextFit/next_fit_tests.o"
+	@echo "... test/NextFit/next_fit_tests.i"
+	@echo "... test/NextFit/next_fit_tests.s"
+	@echo "... test/PoolAllocation/pool_allocation_tests.o"
+	@echo "... test/PoolAllocation/pool_allocation_tests.i"
+	@echo "... test/PoolAllocation/pool_allocation_tests.s"
+	@echo "... test/performance_tests.o"
+	@echo "... test/performance_tests.i"
+	@echo "... test/performance_tests.s"
 .PHONY : help
 
 

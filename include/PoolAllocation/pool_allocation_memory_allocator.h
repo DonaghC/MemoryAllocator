@@ -14,7 +14,7 @@ class PoolAllocationMemoryAllocator : public MemoryAllocator
 public:
 
     // Type of free list node
-    using FLNode = FreeList::SLLNode;
+    using FLNode = typename FreeList<block_size>::SLLNode;
 
     // Constructor that takes in a reference to a memory buffer of template type T.
     template <class T>
@@ -25,32 +25,41 @@ public:
             reinterpret_cast<std::uint8_t*>(buffer.end()) 
             - reinterpret_cast<std::uint8_t*>(buffer.begin())
             ),
-        total_blocks(total_bytes / (node_size + block_size))
+        blocks_count(total_bytes / (node_size + block_size))
     {
+        assert(block_size <= total_bytes);
+
         void* cursor = mem;
         
         FLNode* node = reinterpret_cast<FLNode*>(mem);
-        fl.add_node(mem);
+        fl.add_node(node);
+        cursor += node_size + block_size;
 
         FLNode* prev_node = node;
 
         while (cursor + node_size + block_size <= buffer.end())
         {
-            cursor = mem + node_size + block_size;
             node = reinterpret_cast<FLNode*>(cursor);
             fl.add_node(node, prev_node);
 
             prev_node = node;
+            cursor += node_size + block_size;
+            allocated_bytes += node_size;
         }
+    }
+
+    void* allocate()
+    {
+        allocate(block_size);
     }
 
     void* allocate(std::size_t bytes)
     {
-        if (bytes <= block_size)
+        if (bytes > 0 && bytes <= block_size && fl.count() > 0)
         {
-            fl.remove_node(fl.head_node());
-            allocated_bytes += bytes;
-            allocated_blocks++;
+            auto node = fl.remove_node(fl.head());
+            allocated_bytes += block_size;
+            blocks_allocated++;
             return reinterpret_cast<FLNode*>(reinterpret_cast<void*>(node) + node_size);
         }
 
@@ -63,8 +72,8 @@ public:
         FLNode* node = reinterpret_cast<FLNode*>(newnode_addr);
         fl.add_node(node);
 
-        allocated_bytes -= node->value;
-        allocated_blocks--;
+        allocated_bytes -= block_size;
+        blocks_allocated--;
     }
 
     // Returns number of bytes allocated to memory buffer.
@@ -76,13 +85,13 @@ public:
     // Returns number of blocks allocated.
     std::size_t allocated_blocks() const
     {
-        return allocated_blocks;
+        return blocks_allocated;
     }
 
     // Returns total number of blocks in memory buffer.
     std::size_t total_blocks() const
     {
-        return total_blocks;
+        return blocks_count;
     }
 
     // Returns size of memory buffer in bytes.
@@ -92,13 +101,13 @@ public:
     }
 
     // Returns the length of each block in bytes.
-    static const std::size_t block_length() const
+    static std::size_t block_length()
     {
         return block_size;
     }
 
     // Return free list.
-    FreeList free_list() const
+    FreeList<block_size> free_list() const
     {
         return fl;
     }
@@ -121,10 +130,10 @@ private:
     const std::size_t total_bytes;
 
     // Number of blocks allocated
-    std::size_t allocated_blocks;
+    std::size_t blocks_allocated = 0;
 
     // Total number of blocks in memory buffer
-    const std::size_t total_blocks;
+    const std::size_t blocks_count;
 
 }; // class PoolAllocationMemoryAllocator
 
