@@ -12,7 +12,7 @@ class FirstFitMemoryAllocator : public MemoryAllocator
 {
 public:
 
-    // Type of free list node;
+    // Type of free list node
     using FLNode = FreeList::DLLNode;
 
     // Constructor that takes in a reference to a memory buffer of template type T.

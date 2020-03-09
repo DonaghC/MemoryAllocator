@@ -23,3 +23,7 @@ add_test(performance_tests performance_tests)
 add_executable(nextfit_test test/NextFit/next_fit_tests.cpp)
 target_link_libraries(nextfit_test gtest gtest_main)
 add_test(nextfit_test nextfit_test)
+
+add_executable(poolallocation_test test/PoolAllocation/pool_allocation_tests.cpp)
+target_link_libraries(poolallocation_test gtest gtest_main)
+add_test(poolallocation_test poolallocation_test)
