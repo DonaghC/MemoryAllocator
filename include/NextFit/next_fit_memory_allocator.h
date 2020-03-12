@@ -4,7 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 
-#include "../FirstFit/free_list.h"
+#include "../FirstFit/first_fit_free_list.h"
 #include "memory_allocator.h"
 
 // Implementation of a memory allocator that uses the next fit algorithm to allocate memory.
@@ -13,7 +13,7 @@ class NextFitMemoryAllocator : public MemoryAllocator
 public:
 
     // Type of free list node
-    using FLNode = FreeList::DLLNode;
+    using FLNode = FirstFitFreeList::DLLNode;
 
     // Constructor that takes in a reference to a memory buffer of template type T.
     template <class T>
@@ -164,7 +164,7 @@ public:
     }
 
     // Return free list.
-    FreeList free_list() const
+    FirstFitFreeList free_list() const
     {
         return fl;
     }
@@ -184,7 +184,7 @@ private:
     void* mem;
 
     // Free list to keep track of all unallocated blocks of memory.
-    FreeList fl;
+    FirstFitFreeList fl;
 
     // Keep track of place in free list.
     FLNode* cursor;

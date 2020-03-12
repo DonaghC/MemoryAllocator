@@ -6,9 +6,10 @@
 
 #include "FirstFit/first_fit_memory_allocator.h"
 #include "NextFit/next_fit_memory_allocator.h"
+#include "PoolAllocation/pool_allocation_memory_allocator.h"
 
-using FLNode = FreeList::DLLNode;
-const std::size_t NODESIZE = FirstFitMemoryAllocator::node_size;
+using FLNode_FF = FirstFitFreeList::DLLNode;
+const std::size_t NODESIZE_FF = FirstFitMemoryAllocator::node_size;
 
 TEST(Allocation, First_1000Times)
 {
@@ -20,16 +21,18 @@ TEST(Allocation, First_1000Times)
     int i1=0;
     while (i1<1000)
     {
-        auto start_time1 = std::chrono::high_resolution_clock::now();
-        auto b1 = ffma.allocate(1);
-        auto end_time1 = std::chrono::high_resolution_clock::now();
+        auto start_time = std::chrono::high_resolution_clock::now();
+        auto b = ffma.allocate(1);
+        auto end_time = std::chrono::high_resolution_clock::now();
         
-        time1 += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time1 - start_time1).count();
+        time1 += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
 
-        ffma.deallocate(b1);
+        ffma.deallocate(b);
 
         i1++;
     }
+
+    std::cout << "FirstFit time:\t" << time1/1000000 << "ms\n";
 
     std::array<std::uint8_t, 256> arr2;
     NextFitMemoryAllocator nfma(arr2);
@@ -39,19 +42,39 @@ TEST(Allocation, First_1000Times)
     int i2=0;
     while (i2<1000)
     {
-        auto start_time1 = std::chrono::high_resolution_clock::now();
-        auto b1 = nfma.allocate(1);
-        auto end_time1 = std::chrono::high_resolution_clock::now();
+        auto start_time = std::chrono::high_resolution_clock::now();
+        auto b = nfma.allocate(1);
+        auto end_time = std::chrono::high_resolution_clock::now();
         
-        time2 += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time1 - start_time1).count();
+        time2 += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
 
-        nfma.deallocate(b1);
+        nfma.deallocate(b);
 
         i2++;
     }
 
-    std::cout << "FirstFit time:\t" << time1/1000000 << "ms\n";
     std::cout << "NextFit time:\t" << time2/1000000 << "ms\n";
+
+    std::array<std::uint8_t, 256> arr3;
+    PoolAllocationMemoryAllocator<8> pama(arr2);
+
+    double time3 = 0;
+
+    int i3=0;
+    while (i3<1000)
+    {
+        auto start_time = std::chrono::high_resolution_clock::now();
+        auto b = pama.allocate(1);
+        auto end_time = std::chrono::high_resolution_clock::now();
+        
+        time3 += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
+
+        nfma.deallocate(b);
+
+        i3++;
+    }
+
+    std::cout << "PoolAllocation time:\t" << time3/1000000 << "ms\n";
 }
 
 TEST(Allocation, First_10000Times)
@@ -338,7 +361,7 @@ TEST(Allocation, 1000FreeBlocks)
 
 TEST(Allocation, 10000FreeBlocks)
 {
-    std::array<std::uint8_t, 9 + (20000*(1+NODESIZE)) + NODESIZE> arr1;
+    std::array<std::uint8_t, 9 + (20000*(1+NODESIZE_FF)) + NODESIZE_FF> arr1;
     FirstFitMemoryAllocator ffma(arr1);
 
     std::array<void*, 10000> allocs1;
@@ -381,7 +404,7 @@ TEST(Allocation, 10000FreeBlocks)
 
     double time1 = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time1 - start_time1).count();
 
-    std::array<std::uint8_t, 9 + (20000*(1+NODESIZE)) + NODESIZE> arr2;
+    std::array<std::uint8_t, 9 + (20000*(1+NODESIZE_FF)) + NODESIZE_FF> arr2;
     NextFitMemoryAllocator nfma(arr2);
 
     std::array<void*, 10000> allocs2;
@@ -430,7 +453,7 @@ TEST(Allocation, 10000FreeBlocks)
 
 TEST(Allocation, 50000FreeBlocks)
 {
-    std::array<std::uint8_t, 9 + (100000*(1+NODESIZE)) + NODESIZE> arr1;
+    std::array<std::uint8_t, 9 + (100000*(1+NODESIZE_FF)) + NODESIZE_FF> arr1;
     FirstFitMemoryAllocator ffma(arr1);
 
     std::array<void*, 50000> allocs1;
@@ -473,7 +496,7 @@ TEST(Allocation, 50000FreeBlocks)
 
     double time1 = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time1 - start_time1).count();
 
-    std::array<std::uint8_t, 9 + (100000*(1+NODESIZE)) + NODESIZE> arr2;
+    std::array<std::uint8_t, 9 + (100000*(1+NODESIZE_FF)) + NODESIZE_FF> arr2;
     NextFitMemoryAllocator nfma(arr2);
 
     std::array<void*, 50000> allocs2;
@@ -572,7 +595,7 @@ TEST(Allocation, NoSpace_NoFreeBlocks)
 
 TEST(Allocation, NoSpace_1000FreeBlocksTooSmall)
 {
-    std::array<std::uint8_t, 2000*(1+NODESIZE)> arr1;
+    std::array<std::uint8_t, 2000*(1+NODESIZE_FF)> arr1;
     FirstFitMemoryAllocator ffma(arr1);
 
     std::array<void*, 1000> allocs1;
@@ -612,7 +635,7 @@ TEST(Allocation, NoSpace_1000FreeBlocksTooSmall)
 
     double time1 = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time1 - start_time1).count();
 
-    std::array<std::uint8_t, 2000*(1+NODESIZE)> arr2;
+    std::array<std::uint8_t, 2000*(1+NODESIZE_FF)> arr2;
     NextFitMemoryAllocator nfma(arr2);
 
     std::array<void*, 1000> allocs2;
@@ -658,7 +681,7 @@ TEST(Allocation, NoSpace_1000FreeBlocksTooSmall)
 
 TEST(Allocation, NoSpace_10000FreeBlocksTooSmall)
 {
-    std::array<std::uint8_t, 20000*(1+NODESIZE)> arr1;
+    std::array<std::uint8_t, 20000*(1+NODESIZE_FF)> arr1;
     FirstFitMemoryAllocator ffma(arr1);
 
     std::array<void*, 10000> allocs1;
@@ -698,7 +721,7 @@ TEST(Allocation, NoSpace_10000FreeBlocksTooSmall)
 
     double time1 = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time1 - start_time1).count();
 
-    std::array<std::uint8_t, 20000*(1+NODESIZE)> arr2;
+    std::array<std::uint8_t, 20000*(1+NODESIZE_FF)> arr2;
     NextFitMemoryAllocator nfma(arr2);
 
     std::array<void*, 10000> allocs2;
@@ -744,7 +767,7 @@ TEST(Allocation, NoSpace_10000FreeBlocksTooSmall)
 
 TEST(Allocation, NoSpace_50000FreeBlocksTooSmall)
 {
-    std::array<std::uint8_t, 100000*(1+NODESIZE)> arr1;
+    std::array<std::uint8_t, 100000*(1+NODESIZE_FF)> arr1;
     FirstFitMemoryAllocator ffma(arr1);
 
     std::array<void*, 50000> allocs1;
@@ -784,7 +807,7 @@ TEST(Allocation, NoSpace_50000FreeBlocksTooSmall)
 
     double time1 = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time1 - start_time1).count();
 
-    std::array<std::uint8_t, 100000*(1+NODESIZE)> arr2;
+    std::array<std::uint8_t, 100000*(1+NODESIZE_FF)> arr2;
     NextFitMemoryAllocator nfma(arr2);
 
     std::array<void*, 50000> allocs2;
@@ -962,7 +985,7 @@ TEST(Deallocation, First_50000Times)
 
 TEST(Deallocation, MergePrev_1000Times)
 {
-    std::array<std::uint8_t, 1000*(1+NODESIZE)> arr1;
+    std::array<std::uint8_t, 1000*(1+NODESIZE_FF)> arr1;
     FirstFitMemoryAllocator ffma(arr1);
 
     std::array<void*, 1000> allocs1;
@@ -997,7 +1020,7 @@ TEST(Deallocation, MergePrev_1000Times)
         i2++;
     }
 
-    std::array<std::uint8_t, 1000*(1+NODESIZE)> arr2;
+    std::array<std::uint8_t, 1000*(1+NODESIZE_FF)> arr2;
     NextFitMemoryAllocator nfma(arr2);
 
     std::array<void*, 1000> allocs2;
@@ -1038,7 +1061,7 @@ TEST(Deallocation, MergePrev_1000Times)
 
 TEST(Deallocation, MergePrev_10000Times)
 {
-    std::array<std::uint8_t, 10000*(1+NODESIZE)> arr1;
+    std::array<std::uint8_t, 10000*(1+NODESIZE_FF)> arr1;
     FirstFitMemoryAllocator ffma(arr1);
 
     std::array<void*, 10000> allocs1;
@@ -1073,7 +1096,7 @@ TEST(Deallocation, MergePrev_10000Times)
         i2++;
     }
 
-    std::array<std::uint8_t, 10000*(1+NODESIZE)> arr2;
+    std::array<std::uint8_t, 10000*(1+NODESIZE_FF)> arr2;
     NextFitMemoryAllocator nfma(arr2);
 
     std::array<void*, 10000> allocs2;
@@ -1114,7 +1137,7 @@ TEST(Deallocation, MergePrev_10000Times)
 
 TEST(Deallocation, MergePrev_50000Times)
 {
-    std::array<std::uint8_t, 50000*(1+NODESIZE)> arr1;
+    std::array<std::uint8_t, 50000*(1+NODESIZE_FF)> arr1;
     FirstFitMemoryAllocator ffma(arr1);
 
     std::array<void*, 50000> allocs1;
@@ -1149,7 +1172,7 @@ TEST(Deallocation, MergePrev_50000Times)
         i2++;
     }
 
-    std::array<std::uint8_t, 50000*(1+NODESIZE)> arr2;
+    std::array<std::uint8_t, 50000*(1+NODESIZE_FF)> arr2;
     NextFitMemoryAllocator nfma(arr2);
 
     std::array<void*, 50000> allocs2;
@@ -1190,7 +1213,7 @@ TEST(Deallocation, MergePrev_50000Times)
 
 TEST(Deallocation, MergeNext_1000Times)
 {
-    std::array<std::uint8_t, 1000*(1+NODESIZE)> arr1;
+    std::array<std::uint8_t, 1000*(1+NODESIZE_FF)> arr1;
     FirstFitMemoryAllocator ffma(arr1);
 
     std::array<void*, 1000> allocs1;
@@ -1225,7 +1248,7 @@ TEST(Deallocation, MergeNext_1000Times)
         i2++;
     }
 
-    std::array<std::uint8_t, 1000*(1+NODESIZE)> arr2;
+    std::array<std::uint8_t, 1000*(1+NODESIZE_FF)> arr2;
     NextFitMemoryAllocator nfma(arr2);
 
     std::array<void*, 1000> allocs2;
@@ -1266,7 +1289,7 @@ TEST(Deallocation, MergeNext_1000Times)
 
 TEST(Deallocation, MergeNext_10000Times)
 {
-    std::array<std::uint8_t, 10000*(1+NODESIZE)> arr1;
+    std::array<std::uint8_t, 10000*(1+NODESIZE_FF)> arr1;
     FirstFitMemoryAllocator ffma(arr1);
 
     std::array<void*, 10000> allocs1;
@@ -1301,7 +1324,7 @@ TEST(Deallocation, MergeNext_10000Times)
         i2++;
     }
 
-    std::array<std::uint8_t, 10000*(1+NODESIZE)> arr2;
+    std::array<std::uint8_t, 10000*(1+NODESIZE_FF)> arr2;
     NextFitMemoryAllocator nfma(arr2);
 
     std::array<void*, 10000> allocs2;
@@ -1342,7 +1365,7 @@ TEST(Deallocation, MergeNext_10000Times)
 
 TEST(Deallocation, MergeNext_50000Times)
 {
-    std::array<std::uint8_t, 50000*(1+NODESIZE)> arr1;
+    std::array<std::uint8_t, 50000*(1+NODESIZE_FF)> arr1;
     FirstFitMemoryAllocator ffma(arr1);
 
     std::array<void*, 50000> allocs1;
@@ -1377,7 +1400,7 @@ TEST(Deallocation, MergeNext_50000Times)
         i2++;
     }
 
-    std::array<std::uint8_t, 50000*(1+NODESIZE)> arr2;
+    std::array<std::uint8_t, 50000*(1+NODESIZE_FF)> arr2;
     NextFitMemoryAllocator nfma(arr2);
 
     std::array<void*, 50000> allocs2;
@@ -1418,7 +1441,7 @@ TEST(Deallocation, MergeNext_50000Times)
 
 TEST(Deallocation, MergePrevNext_1000Times)
 {
-    std::array<std::uint8_t, 2001*(1+NODESIZE)> arr1;
+    std::array<std::uint8_t, 2001*(1+NODESIZE_FF)> arr1;
     FirstFitMemoryAllocator ffma(arr1);
 
     std::array<void*, 1001> allocs11;
@@ -1464,7 +1487,7 @@ TEST(Deallocation, MergePrevNext_1000Times)
         i3++;
     }
 
-    std::array<std::uint8_t, 2001*(1+NODESIZE)> arr2;
+    std::array<std::uint8_t, 2001*(1+NODESIZE_FF)> arr2;
     NextFitMemoryAllocator nfma(arr2);
 
     std::array<void*, 1001> allocs21;
@@ -1516,7 +1539,7 @@ TEST(Deallocation, MergePrevNext_1000Times)
 
 TEST(Deallocation, MergePrevNext_10000Times)
 {
-    std::array<std::uint8_t, 20001*(1+NODESIZE)> arr1;
+    std::array<std::uint8_t, 20001*(1+NODESIZE_FF)> arr1;
     FirstFitMemoryAllocator ffma(arr1);
 
     std::array<void*, 10001> allocs11;
@@ -1562,7 +1585,7 @@ TEST(Deallocation, MergePrevNext_10000Times)
         i3++;
     }
 
-    std::array<std::uint8_t, 20001*(1+NODESIZE)> arr2;
+    std::array<std::uint8_t, 20001*(1+NODESIZE_FF)> arr2;
     NextFitMemoryAllocator nfma(arr2);
 
     std::array<void*, 10001> allocs21;
@@ -1614,7 +1637,7 @@ TEST(Deallocation, MergePrevNext_10000Times)
 
 TEST(Deallocation, MergePrevNext_50000Times)
 {
-    std::array<std::uint8_t, 100001*(1+NODESIZE)> arr1;
+    std::array<std::uint8_t, 100001*(1+NODESIZE_FF)> arr1;
     FirstFitMemoryAllocator ffma(arr1);
 
     std::array<void*, 50001> allocs11;
@@ -1660,7 +1683,7 @@ TEST(Deallocation, MergePrevNext_50000Times)
         i3++;
     }
 
-    std::array<std::uint8_t, 100001*(1+NODESIZE)> arr2;
+    std::array<std::uint8_t, 100001*(1+NODESIZE_FF)> arr2;
     NextFitMemoryAllocator nfma(arr2);
 
     std::array<void*, 50001> allocs21;

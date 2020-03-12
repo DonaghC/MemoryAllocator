@@ -3,13 +3,13 @@
 
 #include <gtest/gtest.h>
 
-#include "FirstFit/free_list.h"
+#include "FirstFit/first_fit_free_list.h"
 
-using FLNode = FreeList::DLLNode;
+using FLNode = FirstFitFreeList::DLLNode;
 
 TEST(AddNode, OnlyNode)
 {
-    FreeList fl;
+    FirstFitFreeList fl;
 
     FLNode node;
     node.value = 0;
@@ -23,7 +23,7 @@ TEST(AddNode, OnlyNode)
 
 TEST(AddNode, EarlierNode)
 {
-    FreeList fl;
+    FirstFitFreeList fl;
 
     std::array<std::uint8_t, 256> arr;
     std::uint8_t* mem = arr.data();
@@ -43,7 +43,7 @@ TEST(AddNode, EarlierNode)
 
 TEST(AddNode, LaterNode)
 {
-    FreeList fl;
+    FirstFitFreeList fl;
 
     std::array<std::uint8_t, 256> arr;
     std::uint8_t* mem = arr.data();
@@ -63,7 +63,7 @@ TEST(AddNode, LaterNode)
 
 TEST(AddNode, MiddleNode)
 {
-    FreeList fl;
+    FirstFitFreeList fl;
 
     std::array<std::uint8_t, 256> arr;
     std::uint8_t* mem = arr.data();
@@ -87,7 +87,7 @@ TEST(AddNode, MiddleNode)
 
 TEST(RemoveNode, OnlyNode)
 {
-    FreeList fl;
+    FirstFitFreeList fl;
 
     FLNode node;
     node.value = 0;
@@ -100,7 +100,7 @@ TEST(RemoveNode, OnlyNode)
 
 TEST(RemoveNode, SmallestNode)
 {
-    FreeList fl;
+    FirstFitFreeList fl;
 
     std::array<std::uint8_t, 256> arr;
     std::uint8_t* mem = arr.data();
@@ -122,7 +122,7 @@ TEST(RemoveNode, SmallestNode)
 
 TEST(RemoveNode, LargestNode)
 {
-    FreeList fl;
+    FirstFitFreeList fl;
 
     std::array<std::uint8_t, 256> arr;
     std::uint8_t* mem = arr.data();
@@ -144,7 +144,7 @@ TEST(RemoveNode, LargestNode)
 
 TEST(RemoveNode, MiddleNode)
 {
-    FreeList fl;
+    FirstFitFreeList fl;
 
     std::array<std::uint8_t, 256> arr;
     std::uint8_t* mem = arr.data();
@@ -170,14 +170,14 @@ TEST(RemoveNode, MiddleNode)
 
 TEST(HeadNode, EmptyList)
 {
-    FreeList fl;
+    FirstFitFreeList fl;
 
     EXPECT_EQ(fl.head(), nullptr);
 }
 
 TEST(HeadNode, OnlyNode)
 {
-    FreeList fl;
+    FirstFitFreeList fl;
 
     FLNode node;
     node.value = 0;
@@ -189,7 +189,7 @@ TEST(HeadNode, OnlyNode)
 
 TEST(HeadNode, AddLaterNode)
 {
-    FreeList fl;
+    FirstFitFreeList fl;
 
     std::array<std::uint8_t, 256> arr;
     std::uint8_t* mem = arr.data();
@@ -207,7 +207,7 @@ TEST(HeadNode, AddLaterNode)
 
 TEST(HeadNode, AddEarlierNode)
 {
-    FreeList fl;
+    FirstFitFreeList fl;
 
     std::array<std::uint8_t, 256> arr;
     std::uint8_t* mem = arr.data();
@@ -225,7 +225,7 @@ TEST(HeadNode, AddEarlierNode)
 
 TEST(HeadNode, RemoveSmallestNode)
 {
-    FreeList fl;
+    FirstFitFreeList fl;
 
     std::array<std::uint8_t, 256> arr;
     std::uint8_t* mem = arr.data();

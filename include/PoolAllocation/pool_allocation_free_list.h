@@ -4,7 +4,7 @@
 #include <cstddef>
 
 template <std::size_t block_size>
-class FreeList
+class PoolAllocationFreeList
 {
 public:
 
@@ -117,6 +117,6 @@ private:
     // First node in the free list.
     SLLNode* head_node = nullptr;
 
-}; // class FreeList
+}; // class PoolAllocationFreeList
 
 #endif // POOL_ALLOCATION_FREE_LIST_H

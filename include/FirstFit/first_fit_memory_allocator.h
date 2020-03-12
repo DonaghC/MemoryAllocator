@@ -4,7 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 
-#include "free_list.h"
+#include "first_fit_free_list.h"
 #include "memory_allocator.h"
 
 // Implementation of a memory allocator that uses the first fit algorithm to allocate memory.
@@ -13,7 +13,7 @@ class FirstFitMemoryAllocator : public MemoryAllocator
 public:
 
     // Type of free list node
-    using FLNode = FreeList::DLLNode;
+    using FLNode = FirstFitFreeList::DLLNode;
 
     // Constructor that takes in a reference to a memory buffer of template type T.
     template <class T>
@@ -128,7 +128,7 @@ public:
     }
 
     // Return free list.
-    FreeList free_list() const
+    FirstFitFreeList free_list() const
     {
         return fl;
     }
@@ -142,7 +142,7 @@ private:
     void* mem;
 
     // Free list to keep track of all unallocated blocks of memory.
-    FreeList fl;
+    FirstFitFreeList fl;
 
     // Number of bytes used in memory buffer.
     std::size_t allocated_bytes;

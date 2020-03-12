@@ -5,7 +5,7 @@
 
 // Doubly linked list data structure used for keeping track of free blocks of memory in memory
 //  memory allocator objects.
-class FreeList
+class FirstFitFreeList
 {
 public:
 
@@ -134,6 +134,6 @@ private:
     // First node in the free list.
     DLLNode* head_node = nullptr;
 
-}; // class FreeList
+}; // class FirstFitFreeList
 
 #endif // FREE_LIST_H

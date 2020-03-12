@@ -4,9 +4,10 @@
 #include <cstddef>
 #include <cstdint>
 
-#include "PoolAllocation/free_list.h"
+#include "PoolAllocation/pool_allocation_free_list.h"
 #include "memory_allocator.h"
 
+// Implementation of a memory allocator that uses the pool allocation algorithm to allocate memory.
 template<std::size_t block_size>
 class PoolAllocationMemoryAllocator : public MemoryAllocator
 {
@@ -14,7 +15,7 @@ class PoolAllocationMemoryAllocator : public MemoryAllocator
 public:
 
     // Type of free list node
-    using FLNode = typename FreeList<block_size>::SLLNode;
+    using FLNode = typename PoolAllocationFreeList<block_size>::SLLNode;
 
     // Constructor that takes in a reference to a memory buffer of template type T.
     template <class T>
@@ -48,11 +49,13 @@ public:
         }
     }
 
+    // Allocate a single block and return the address of the allocation.
     void* allocate()
     {
-        allocate(block_size);
+        return allocate(block_size);
     }
 
+    // Allocate a number of bytes and return the address of the allocation.
     void* allocate(std::size_t bytes)
     {
         if (bytes > 0 && bytes <= block_size && fl.count() > 0)
@@ -66,6 +69,7 @@ public:
         return nullptr;
     }
 
+    // Deallocate a block of memory to free it up for re-allocation.
     void deallocate(void* addr)
     {
         void* newnode_addr = addr - node_size;
@@ -107,7 +111,7 @@ public:
     }
 
     // Return free list.
-    FreeList<block_size> free_list() const
+    PoolAllocationFreeList<block_size> free_list() const
     {
         return fl;
     }
@@ -121,7 +125,7 @@ private:
     void* mem;
 
     // Free list to keep track of all unallocated blocks of memory.
-    FreeList<block_size> fl;
+    PoolAllocationFreeList<block_size> fl;
 
     // Number of bytes used in memory buffer.
     std::size_t allocated_bytes;
