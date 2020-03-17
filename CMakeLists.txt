@@ -8,7 +8,7 @@ enable_testing()
 include_directories("include/")
 include_directories("external/googletest/googletest/include/")
 
-add_executable(firstfit_freelist_test test/FirstFit/free_list_tests.cpp)
+add_executable(firstfit_freelist_test test/FirstFit/first_fit_free_list_tests.cpp)
 target_link_libraries(firstfit_freelist_test gtest gtest_main)
 add_test(firstfit_freelist_test firstfit_freelist_test)
 
@@ -27,3 +27,7 @@ add_test(nextfit_test nextfit_test)
 add_executable(poolallocation_test test/PoolAllocation/pool_allocation_tests.cpp)
 target_link_libraries(poolallocation_test gtest gtest_main)
 add_test(poolallocation_test poolallocation_test)
+
+add_executable(buddysystem_test test/BuddySystem/buddy_system_tests.cpp)
+target_link_libraries(buddysystem_test gtest gtest_main)
+add_test(buddysystem_test buddysystem_test)
