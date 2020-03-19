@@ -67,10 +67,11 @@ set(CMAKE_MAKEFILE_PRODUCTS
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/firstfit_test.dir/DependInfo.cmake"
-  "CMakeFiles/performance_tests.dir/DependInfo.cmake"
   "CMakeFiles/firstfit_freelist_test.dir/DependInfo.cmake"
   "CMakeFiles/nextfit_test.dir/DependInfo.cmake"
   "CMakeFiles/poolallocation_test.dir/DependInfo.cmake"
+  "CMakeFiles/performance_tests.dir/DependInfo.cmake"
+  "CMakeFiles/buddysystem_test.dir/DependInfo.cmake"
   "external/googletest/googlemock/CMakeFiles/gmock_main.dir/DependInfo.cmake"
   "external/googletest/googlemock/CMakeFiles/gmock.dir/DependInfo.cmake"
   "external/googletest/googletest/CMakeFiles/gtest_main.dir/DependInfo.cmake"

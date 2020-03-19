@@ -23,7 +23,6 @@ public:
     template <class T>
     BuddySystemMemoryAllocator(T& buffer) : 
         mem(buffer.data()),
-        allocated_bytes(node_size),
         total_bytes(
             reinterpret_cast<std::uint8_t*>(buffer.end()) 
             - reinterpret_cast<std::uint8_t*>(buffer.begin())
@@ -33,13 +32,8 @@ public:
 
         void* cursor = mem;
         
-        FLNode<block_size4>* node4 = reinterpret_cast<FLNode<block_size4>*>(mem);
-        node4->value = block_size4;
-        fl4.add_node(node4);
-        cursor += node_size + block_size4;
-
-        FLNode<block_size4>* prev_node4 = node4;
-
+        FLNode<block_size4>* node4;
+        FLNode<block_size4>* prev_node4 = nullptr;
         while (cursor + node_size + block_size4 <= buffer.end())
         {
             node4 = reinterpret_cast<FLNode<block_size4>*>(cursor);
@@ -114,7 +108,7 @@ public:
 
             allocated_bytes += smallest_block_size;
 
-            return node+node_size;
+            return reinterpret_cast<void*>(node)+node_size;
         }
         else if (bytes <= block_size2)
         {
@@ -131,7 +125,7 @@ public:
 
             allocated_bytes += block_size2;
 
-            return node+node_size;
+            return reinterpret_cast<void*>(node)+node_size;
         }
         else if (bytes <= block_size3)
         {
@@ -148,7 +142,7 @@ public:
 
             allocated_bytes += block_size3;
 
-            return node+node_size;
+            return reinterpret_cast<void*>(node)+node_size;
         }
         else if (bytes <= block_size4)
         {
@@ -162,7 +156,7 @@ public:
 
             allocated_bytes += block_size4;
 
-            return node+node_size;
+            return reinterpret_cast<void*>(node)+node_size;
         }
 
         return nullptr;
@@ -185,7 +179,6 @@ public:
             case smallest_block_size:
                 return _deallocate<smallest_block_size>(temp_node, fl1);
         }
-
     }
 
     // Returns number of bytes allocated to memory buffer.
@@ -203,7 +196,7 @@ public:
     // Returns array of the lengths of each different size block in bytes.
     static std::array<std::size_t, 4> block_lengths()
     {
-        return std::array<std::size_t, 4>(smallest_block_size, block_size2, block_size3, block_size4);
+        return std::array<std::size_t, 4>{smallest_block_size, block_size2, block_size3, block_size4};
     }
 
     // Return smallest free list.
@@ -233,36 +226,56 @@ public:
     // Size of free list node in bytes.
     static const std::size_t node_size = sizeof(FLNode<smallest_block_size>);
 
+    // Get next block size of 'block_size'
+    template <std::size_t block_size>
+    static constexpr std::size_t get_next_blocksize()
+    {
+        return (2*block_size) + node_size;
+    }
+
+    // Get preceding block size of 'block_size'
+    template <std::size_t block_size>
+    static constexpr std::size_t get_prev_blocksize()
+    {
+        return (block_size-node_size)/2;
+    }
+
 private:
 
     // Divide a node from one free list with block sizes double that of another free list.
     // Add the 2 new nodes to the smaller free list and return true if this was successful.
     template <std::size_t block_size>
-    bool divide_node(BuddySystemFreeList<block_size> &larger_fl, BuddySystemFreeList<(block_size/2)-(node_size/2)> &smaller_fl)
+    bool divide_node(BuddySystemFreeList<block_size> &larger_fl, BuddySystemFreeList<(get_prev_blocksize<block_size>())> &smaller_fl)
     {
-        static const std::size_t smaller_block_size = (block_size/2)-(node_size/2);
-        
         if (larger_fl.count() == 0)
         {
             switch(block_size)
             {
                 case block_size3:
-                    return divide_node<block_size4>(fl4, fl3);
+                    if (divide_node<block_size4>(fl4, fl3))
+                    {
+                        break;
+                    }
+                    return false;
                 case block_size2:
-                    return divide_node<block_size3>(fl3, fl2);
+                    if (divide_node<block_size3>(fl3, fl2))
+                    {
+                        break;
+                    }
+                    return false;
                 default:
                     return false;
             }
         }
 
-        auto addr1 = larger_fl.remove_node(larger_fl.head());
+        void* addr1 = reinterpret_cast<void*>(larger_fl.remove_node(larger_fl.head()));
 
-        auto node1 = reinterpret_cast<FLNode<smaller_block_size>*>(addr1-node_size);
-        node1->value = smaller_block_size;
+        auto node1 = reinterpret_cast<FLNode<get_prev_blocksize<block_size>()>*>(addr1);
+        node1->value = get_prev_blocksize<block_size>();
         smaller_fl.add_node(node1);
 
-        auto node2 = reinterpret_cast<FLNode<smaller_block_size>*>(addr1+smaller_block_size);
-        node2->value = smaller_block_size;
+        auto node2 = reinterpret_cast<FLNode<get_prev_blocksize<block_size>()>*>(addr1+get_prev_blocksize<block_size>()+node_size);
+        node2->value = get_prev_blocksize<block_size>();
         smaller_fl.add_node(node2);
 
         allocated_bytes += node_size;
@@ -274,30 +287,88 @@ private:
     template <std::size_t block_size>
     void _deallocate(FLNode<block_size>* node, BuddySystemFreeList<block_size> &fl)
     {
-        if (block_size != block_size4)
+        if (!merge_recursively<block_size>(node, fl))
         {
-            auto prev = fl.find_prev(node);
-            if (reinterpret_cast<void*>(prev) + block_size + node_size == reinterpret_cast<void*>(node))
-            {
-                merge_nodes<block_size>(prev, node, fl);
-
-                allocated_bytes -= block_size;
-
-                return;
-            }
-            else if (reinterpret_cast<void*>(node) + block_size + node_size == reinterpret_cast<void*>(node->next))
-            {
-                merge_nodes<block_size>(node, node->next, fl);
-
-                allocated_bytes -= block_size;
-
-                return;
-            }
+            fl.add_node(node);
         }
 
-        fl.add_node(node);
-
         allocated_bytes -= block_size;
+    }
+
+    template <std::size_t block_size>
+    bool merge_recursively(FLNode<block_size>* node, BuddySystemFreeList<block_size> &fl)
+    {
+        if (block_size == block_size4 || fl.count() == 0)
+        {
+            return false;
+        }
+
+        auto prev = fl.find_prev(node);
+        if (reinterpret_cast<void*>(prev) + block_size + node_size == reinterpret_cast<void*>(node)) // recursively check for merging needed
+        {
+            merge_nodes<block_size>(prev, node, fl);
+
+            switch(block_size)
+            {
+                case smallest_block_size:
+                    merge_recursively<block_size2>(reinterpret_cast<FLNode<block_size2>*>(prev), fl2);
+                    break;
+                case block_size2:
+                    merge_recursively<block_size3>(reinterpret_cast<FLNode<block_size3>*>(prev), fl3);
+                    break;
+                case block_size3:
+                    merge_recursively<block_size4>(reinterpret_cast<FLNode<block_size4>*>(prev), fl4);
+                    break;
+            }
+
+            return true;
+        }
+        else
+        {
+            if (prev == nullptr)
+            {
+                if (reinterpret_cast<void*>(node) + block_size + node_size == reinterpret_cast<void*>(fl.head()))
+                {
+                    merge_nodes<block_size>(node, fl.head(), fl);
+
+                    switch(block_size)
+                    {
+                        case smallest_block_size:
+                            merge_recursively<block_size2>(reinterpret_cast<FLNode<block_size2>*>(node), fl2);
+                            break;
+                        case block_size2:
+                            merge_recursively<block_size3>(reinterpret_cast<FLNode<block_size3>*>(node), fl3);
+                            break;
+                        case block_size3:
+                            merge_recursively<block_size4>(reinterpret_cast<FLNode<block_size4>*>(node), fl4);
+                            break;
+                    }
+                    return true;
+                }
+            }
+            else
+            {
+                if (reinterpret_cast<void*>(node) + block_size + node_size == reinterpret_cast<void*>(prev->next))
+                {
+                    merge_nodes<block_size>(node, prev->next, fl);
+
+                    switch(block_size)
+                    {
+                        case smallest_block_size:
+                            merge_recursively<block_size2>(reinterpret_cast<FLNode<block_size2>*>(node), fl2);
+                            break;
+                        case block_size2:
+                            merge_recursively<block_size3>(reinterpret_cast<FLNode<block_size3>*>(node), fl3);
+                            break;
+                        case block_size3:
+                            merge_recursively<block_size4>(reinterpret_cast<FLNode<block_size4>*>(node), fl4);
+                            break;
+                    }
+                    return true;
+                }
+            }
+            
+        }
     }
 
     // Merge 2 nodes 'node1' and 'node2' of value 'block_size' and remove them from fl 'fl' (if they are part of it)
@@ -331,28 +402,28 @@ private:
     void* mem;
 
     // Size of blocks in second free list.
-    static const std::size_t block_size2 = (smallest_block_size*2) + node_size;
+    static const std::size_t block_size2 = get_next_blocksize<smallest_block_size>();
 
     // Size of blocks in third free list.
-    static const std::size_t block_size3 = (smallest_block_size*4) + (node_size*3);
+    static const std::size_t block_size3 = get_next_blocksize<block_size2>();
 
     // Size of blocks in fourth/largest free list.
-    static const std::size_t block_size4 = (smallest_block_size*8) + (node_size*7); 
+    static const std::size_t block_size4 = get_next_blocksize<block_size3>(); 
 
     // Free list to keep track of unallocated blocks of memory of the smallest block size.
     BuddySystemFreeList<smallest_block_size> fl1;
 
     // Free list to keep track of unallocated blocks of memory of the smallest block size *2.
-    BuddySystemFreeList<(smallest_block_size*2) + node_size> fl2;
+    BuddySystemFreeList<block_size2> fl2;
 
     // Free list to keep track of unallocated blocks of memory of the smallest block size *4.
-    BuddySystemFreeList<(smallest_block_size*4) + (node_size*3)> fl3;
+    BuddySystemFreeList<block_size3> fl3;
 
     // Free list to keep track of unallocated blocks of memory of the smallest block size *8.
-    BuddySystemFreeList<(smallest_block_size*8) + (node_size*7)> fl4;
+    BuddySystemFreeList<block_size4> fl4;
 
     // Number of bytes used in memory buffer.
-    std::size_t allocated_bytes;
+    std::size_t allocated_bytes = 0;
 
     // Length of memory buffer in bytes.
     const std::size_t total_bytes;

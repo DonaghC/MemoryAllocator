@@ -51,6 +51,11 @@ public:
     // Remove node from free list by updating pointers between adjacent nodes.
     SLLNode* remove_node(SLLNode* node)
     {
+        if (node_count <= 0)
+        {
+            return nullptr;
+        }
+
         if (node_count == 1)
         {
             head_node = nullptr;

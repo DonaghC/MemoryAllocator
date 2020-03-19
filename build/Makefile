@@ -91,27 +91,6 @@ edit_cache/fast: edit_cache
 
 .PHONY : edit_cache/fast
 
-# Special rule for the target list_install_components
-list_install_components:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Available install components are: \"Unspecified\""
-.PHONY : list_install_components
-
-# Special rule for the target list_install_components
-list_install_components/fast: list_install_components
-
-.PHONY : list_install_components/fast
-
-# Special rule for the target rebuild_cache
-rebuild_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
-	/usr/bin/cmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
-.PHONY : rebuild_cache
-
-# Special rule for the target rebuild_cache
-rebuild_cache/fast: rebuild_cache
-
-.PHONY : rebuild_cache/fast
-
 # Special rule for the target install/local
 install/local: preinstall
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
@@ -134,6 +113,27 @@ test:
 test/fast: test
 
 .PHONY : test/fast
+
+# Special rule for the target list_install_components
+list_install_components:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Available install components are: \"Unspecified\""
+.PHONY : list_install_components
+
+# Special rule for the target list_install_components
+list_install_components/fast: list_install_components
+
+.PHONY : list_install_components/fast
+
+# Special rule for the target rebuild_cache
+rebuild_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
+	/usr/bin/cmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+.PHONY : rebuild_cache
+
+# Special rule for the target rebuild_cache
+rebuild_cache/fast: rebuild_cache
+
+.PHONY : rebuild_cache/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -181,19 +181,6 @@ firstfit_test/fast:
 .PHONY : firstfit_test/fast
 
 #=============================================================================
-# Target rules for targets named performance_tests
-
-# Build rule for target.
-performance_tests: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 performance_tests
-.PHONY : performance_tests
-
-# fast build rule for target.
-performance_tests/fast:
-	$(MAKE) -f CMakeFiles/performance_tests.dir/build.make CMakeFiles/performance_tests.dir/build
-.PHONY : performance_tests/fast
-
-#=============================================================================
 # Target rules for targets named firstfit_freelist_test
 
 # Build rule for target.
@@ -231,6 +218,32 @@ poolallocation_test: cmake_check_build_system
 poolallocation_test/fast:
 	$(MAKE) -f CMakeFiles/poolallocation_test.dir/build.make CMakeFiles/poolallocation_test.dir/build
 .PHONY : poolallocation_test/fast
+
+#=============================================================================
+# Target rules for targets named performance_tests
+
+# Build rule for target.
+performance_tests: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 performance_tests
+.PHONY : performance_tests
+
+# fast build rule for target.
+performance_tests/fast:
+	$(MAKE) -f CMakeFiles/performance_tests.dir/build.make CMakeFiles/performance_tests.dir/build
+.PHONY : performance_tests/fast
+
+#=============================================================================
+# Target rules for targets named buddysystem_test
+
+# Build rule for target.
+buddysystem_test: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 buddysystem_test
+.PHONY : buddysystem_test
+
+# fast build rule for target.
+buddysystem_test/fast:
+	$(MAKE) -f CMakeFiles/buddysystem_test.dir/build.make CMakeFiles/buddysystem_test.dir/build
+.PHONY : buddysystem_test/fast
 
 #=============================================================================
 # Target rules for targets named gmock_main
@@ -284,6 +297,60 @@ gtest/fast:
 	$(MAKE) -f external/googletest/googletest/CMakeFiles/gtest.dir/build.make external/googletest/googletest/CMakeFiles/gtest.dir/build
 .PHONY : gtest/fast
 
+test/BuddySystem/buddy_system_tests.o: test/BuddySystem/buddy_system_tests.cpp.o
+
+.PHONY : test/BuddySystem/buddy_system_tests.o
+
+# target to build an object file
+test/BuddySystem/buddy_system_tests.cpp.o:
+	$(MAKE) -f CMakeFiles/buddysystem_test.dir/build.make CMakeFiles/buddysystem_test.dir/test/BuddySystem/buddy_system_tests.cpp.o
+.PHONY : test/BuddySystem/buddy_system_tests.cpp.o
+
+test/BuddySystem/buddy_system_tests.i: test/BuddySystem/buddy_system_tests.cpp.i
+
+.PHONY : test/BuddySystem/buddy_system_tests.i
+
+# target to preprocess a source file
+test/BuddySystem/buddy_system_tests.cpp.i:
+	$(MAKE) -f CMakeFiles/buddysystem_test.dir/build.make CMakeFiles/buddysystem_test.dir/test/BuddySystem/buddy_system_tests.cpp.i
+.PHONY : test/BuddySystem/buddy_system_tests.cpp.i
+
+test/BuddySystem/buddy_system_tests.s: test/BuddySystem/buddy_system_tests.cpp.s
+
+.PHONY : test/BuddySystem/buddy_system_tests.s
+
+# target to generate assembly for a file
+test/BuddySystem/buddy_system_tests.cpp.s:
+	$(MAKE) -f CMakeFiles/buddysystem_test.dir/build.make CMakeFiles/buddysystem_test.dir/test/BuddySystem/buddy_system_tests.cpp.s
+.PHONY : test/BuddySystem/buddy_system_tests.cpp.s
+
+test/FirstFit/first_fit_free_list_tests.o: test/FirstFit/first_fit_free_list_tests.cpp.o
+
+.PHONY : test/FirstFit/first_fit_free_list_tests.o
+
+# target to build an object file
+test/FirstFit/first_fit_free_list_tests.cpp.o:
+	$(MAKE) -f CMakeFiles/firstfit_freelist_test.dir/build.make CMakeFiles/firstfit_freelist_test.dir/test/FirstFit/first_fit_free_list_tests.cpp.o
+.PHONY : test/FirstFit/first_fit_free_list_tests.cpp.o
+
+test/FirstFit/first_fit_free_list_tests.i: test/FirstFit/first_fit_free_list_tests.cpp.i
+
+.PHONY : test/FirstFit/first_fit_free_list_tests.i
+
+# target to preprocess a source file
+test/FirstFit/first_fit_free_list_tests.cpp.i:
+	$(MAKE) -f CMakeFiles/firstfit_freelist_test.dir/build.make CMakeFiles/firstfit_freelist_test.dir/test/FirstFit/first_fit_free_list_tests.cpp.i
+.PHONY : test/FirstFit/first_fit_free_list_tests.cpp.i
+
+test/FirstFit/first_fit_free_list_tests.s: test/FirstFit/first_fit_free_list_tests.cpp.s
+
+.PHONY : test/FirstFit/first_fit_free_list_tests.s
+
+# target to generate assembly for a file
+test/FirstFit/first_fit_free_list_tests.cpp.s:
+	$(MAKE) -f CMakeFiles/firstfit_freelist_test.dir/build.make CMakeFiles/firstfit_freelist_test.dir/test/FirstFit/first_fit_free_list_tests.cpp.s
+.PHONY : test/FirstFit/first_fit_free_list_tests.cpp.s
+
 test/FirstFit/first_fit_tests.o: test/FirstFit/first_fit_tests.cpp.o
 
 .PHONY : test/FirstFit/first_fit_tests.o
@@ -310,33 +377,6 @@ test/FirstFit/first_fit_tests.s: test/FirstFit/first_fit_tests.cpp.s
 test/FirstFit/first_fit_tests.cpp.s:
 	$(MAKE) -f CMakeFiles/firstfit_test.dir/build.make CMakeFiles/firstfit_test.dir/test/FirstFit/first_fit_tests.cpp.s
 .PHONY : test/FirstFit/first_fit_tests.cpp.s
-
-test/FirstFit/free_list_tests.o: test/FirstFit/free_list_tests.cpp.o
-
-.PHONY : test/FirstFit/free_list_tests.o
-
-# target to build an object file
-test/FirstFit/free_list_tests.cpp.o:
-	$(MAKE) -f CMakeFiles/firstfit_freelist_test.dir/build.make CMakeFiles/firstfit_freelist_test.dir/test/FirstFit/free_list_tests.cpp.o
-.PHONY : test/FirstFit/free_list_tests.cpp.o
-
-test/FirstFit/free_list_tests.i: test/FirstFit/free_list_tests.cpp.i
-
-.PHONY : test/FirstFit/free_list_tests.i
-
-# target to preprocess a source file
-test/FirstFit/free_list_tests.cpp.i:
-	$(MAKE) -f CMakeFiles/firstfit_freelist_test.dir/build.make CMakeFiles/firstfit_freelist_test.dir/test/FirstFit/free_list_tests.cpp.i
-.PHONY : test/FirstFit/free_list_tests.cpp.i
-
-test/FirstFit/free_list_tests.s: test/FirstFit/free_list_tests.cpp.s
-
-.PHONY : test/FirstFit/free_list_tests.s
-
-# target to generate assembly for a file
-test/FirstFit/free_list_tests.cpp.s:
-	$(MAKE) -f CMakeFiles/firstfit_freelist_test.dir/build.make CMakeFiles/firstfit_freelist_test.dir/test/FirstFit/free_list_tests.cpp.s
-.PHONY : test/FirstFit/free_list_tests.cpp.s
 
 test/NextFit/next_fit_tests.o: test/NextFit/next_fit_tests.cpp.o
 
@@ -428,25 +468,29 @@ help:
 	@echo "... install/strip"
 	@echo "... install"
 	@echo "... edit_cache"
+	@echo "... install/local"
+	@echo "... test"
 	@echo "... firstfit_test"
-	@echo "... performance_tests"
 	@echo "... firstfit_freelist_test"
 	@echo "... list_install_components"
 	@echo "... nextfit_test"
 	@echo "... rebuild_cache"
 	@echo "... poolallocation_test"
-	@echo "... install/local"
-	@echo "... test"
+	@echo "... performance_tests"
+	@echo "... buddysystem_test"
 	@echo "... gmock_main"
 	@echo "... gmock"
 	@echo "... gtest_main"
 	@echo "... gtest"
+	@echo "... test/BuddySystem/buddy_system_tests.o"
+	@echo "... test/BuddySystem/buddy_system_tests.i"
+	@echo "... test/BuddySystem/buddy_system_tests.s"
+	@echo "... test/FirstFit/first_fit_free_list_tests.o"
+	@echo "... test/FirstFit/first_fit_free_list_tests.i"
+	@echo "... test/FirstFit/first_fit_free_list_tests.s"
 	@echo "... test/FirstFit/first_fit_tests.o"
 	@echo "... test/FirstFit/first_fit_tests.i"
 	@echo "... test/FirstFit/first_fit_tests.s"
-	@echo "... test/FirstFit/free_list_tests.o"
-	@echo "... test/FirstFit/free_list_tests.i"
-	@echo "... test/FirstFit/free_list_tests.s"
 	@echo "... test/NextFit/next_fit_tests.o"
 	@echo "... test/NextFit/next_fit_tests.i"
 	@echo "... test/NextFit/next_fit_tests.s"
