@@ -3,6 +3,7 @@
 /home/donagh/Documents/FYP/build/CMakeFiles/edit_cache.dir
 /home/donagh/Documents/FYP/build/CMakeFiles/install/local.dir
 /home/donagh/Documents/FYP/build/CMakeFiles/test.dir
+/home/donagh/Documents/FYP/build/CMakeFiles/performance_tests2.dir
 /home/donagh/Documents/FYP/build/CMakeFiles/firstfit_test.dir
 /home/donagh/Documents/FYP/build/CMakeFiles/firstfit_freelist_test.dir
 /home/donagh/Documents/FYP/build/CMakeFiles/list_install_components.dir

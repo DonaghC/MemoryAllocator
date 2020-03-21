@@ -1,1734 +1,1200 @@
 #include <array>
 #include <chrono>
 #include <cstddef>
+#include <string>
 
 #include <gtest/gtest.h>
 
+#include "memory_allocator.h"
 #include "FirstFit/first_fit_memory_allocator.h"
 #include "NextFit/next_fit_memory_allocator.h"
 #include "PoolAllocation/pool_allocation_memory_allocator.h"
+#include "BuddySystem/buddy_system_memory_allocator.h"
 
 using FLNode_FF = FirstFitFreeList::DLLNode;
 const std::size_t NODESIZE_FF = FirstFitMemoryAllocator::node_size;
+const std::size_t NODESIZE_PA = PoolAllocationMemoryAllocator<0>::node_size;
+const std::size_t NODESIZE_BS = BuddySystemMemoryAllocator<0>::node_size;
 
-TEST(Allocation, First_1000Times)
+const std::array<std::string, 5> STRINGS = {"FirstFit:\t\t\t", "NextFit:\t\t\t", "PoolAllocation:\t\t\t", "BuddySystem:\t\t\t", "BuddySystem (large alloc):\t"};
+
+TEST(Allocation, First_NTimes)
 {
-    std::array<std::uint8_t, 256> arr1;
+    const std::size_t bytes_alloc = 1;
+    const std::size_t bytes_alloc_large = 64+(7*NODESIZE_BS);
+
+    const std::array<std::size_t, 3> sizeN = {1000, 10000, 50000};
+
+    std::array<std::uint8_t, 10*(bytes_alloc+NODESIZE_FF)> arr1;
     FirstFitMemoryAllocator ffma(arr1);
 
-    double time1 = 0;
+    std::array<std::uint8_t, 10*(bytes_alloc+NODESIZE_FF)> arr2;
+    NextFitMemoryAllocator nfma(arr2);
 
-    int i1=0;
-    while (i1<1000)
+    std::array<std::uint8_t, 10*(bytes_alloc+NODESIZE_PA)> arr3;
+    PoolAllocationMemoryAllocator<8> pama(arr3);
+
+    std::array<std::uint8_t, 10*(bytes_alloc+NODESIZE_BS)> arr4;
+    BuddySystemMemoryAllocator<8> bsma(arr4);
+
+    std::array<std::uint8_t, 10*(bytes_alloc_large+NODESIZE_BS)> arr5;
+    BuddySystemMemoryAllocator<8> bsma_large(arr5);
+
+    std::array<MemoryAllocator*, 5> mem_allocs = {&ffma, &nfma, &pama, &bsma, &bsma_large};
+
+    for (int n=0; n<sizeN.size(); n++)
     {
-        auto start_time = std::chrono::high_resolution_clock::now();
-        auto b = ffma.allocate(1);
-        auto end_time = std::chrono::high_resolution_clock::now();
+        std::cout << "N=" << sizeN[n] << "\n";
+        for (int m=0; m<mem_allocs.size(); m++)
+        {
+            std::size_t bytes_number = bytes_alloc;
+            if (m == 4)
+            {
+                bytes_number = bytes_alloc_large;
+            }
+
+            double time = 0;
+
+            int i=0;
+            while (i<sizeN[n])
+            {
+                auto start_time = std::chrono::high_resolution_clock::now();
+                auto b = mem_allocs[m]->allocate(bytes_number);
+                auto end_time = std::chrono::high_resolution_clock::now();
+                
+                time += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
+
+                mem_allocs[m]->deallocate(b);
+
+                i++;
+            }
+
+            std::cout << "\t" << STRINGS[m] << time/1000000 << "ms\n";
+        }
+    }
+}
+
+TEST(Allocation, NTimes)
+{
+    const std::size_t bytes_alloc = 1;
+    const std::size_t bytes_alloc_large = 64+(7*NODESIZE_BS);
+
+    const std::array<std::size_t, 3> sizeN = {1000, 10000, 50000};
+
+    std::array<std::uint8_t, 1000*(bytes_alloc+NODESIZE_FF)> arr1_1000;
+    FirstFitMemoryAllocator ffma_1000(arr1_1000);
+
+    std::array<std::uint8_t, 1000*(bytes_alloc+NODESIZE_FF)> arr2_1000;
+    NextFitMemoryAllocator nfma_1000(arr2_1000);
+
+    std::array<std::uint8_t, 1000*(bytes_alloc+NODESIZE_PA)> arr3_1000;
+    PoolAllocationMemoryAllocator<8> pama_1000(arr3_1000);
+
+    std::array<std::uint8_t, 1000*(bytes_alloc+NODESIZE_BS)> arr4_1000;
+    BuddySystemMemoryAllocator<8> bsma_1000(arr4_1000);
+
+    std::array<std::uint8_t, 1000*(bytes_alloc_large+NODESIZE_BS)> arr5_1000;
+    BuddySystemMemoryAllocator<8> bsma_large_1000(arr5_1000);
+
+    std::array<std::uint8_t, 10000*(bytes_alloc+NODESIZE_FF)> arr1_10000;
+    FirstFitMemoryAllocator ffma_10000(arr1_10000);
+
+    std::array<std::uint8_t, 10000*(bytes_alloc+NODESIZE_FF)> arr2_10000;
+    NextFitMemoryAllocator nfma_10000(arr2_10000);
+
+    std::array<std::uint8_t, 10000*(bytes_alloc+NODESIZE_PA)> arr3_10000;
+    PoolAllocationMemoryAllocator<8> pama_10000(arr3_10000);
+
+    std::array<std::uint8_t, 10000*(bytes_alloc+NODESIZE_BS)> arr4_10000;
+    BuddySystemMemoryAllocator<8> bsma_10000(arr4_10000);
+
+    std::array<std::uint8_t, 10000*(bytes_alloc_large+NODESIZE_BS)> arr5_10000;
+    BuddySystemMemoryAllocator<8> bsma_large_10000(arr5_10000);
+
+    std::array<std::uint8_t, 50000*(bytes_alloc+NODESIZE_FF)> arr1_50000;
+    FirstFitMemoryAllocator ffma_50000(arr1_50000);
+
+    std::array<std::uint8_t, 50000*(bytes_alloc+NODESIZE_FF)> arr2_50000;
+    NextFitMemoryAllocator nfma_50000(arr2_50000);
+
+    std::array<std::uint8_t, 50000*(bytes_alloc+NODESIZE_PA)> arr3_50000;
+    PoolAllocationMemoryAllocator<8> pama_50000(arr3_50000);
+
+    std::array<std::uint8_t, 50000*(bytes_alloc+NODESIZE_BS)> arr4_50000;
+    BuddySystemMemoryAllocator<8> bsma_50000(arr4_50000);
+
+    std::array<MemoryAllocator*, 14> mem_allocs = {
+        &ffma_1000, &nfma_1000, &pama_1000, &bsma_1000, &bsma_large_1000,
+        &ffma_10000, &nfma_10000, &pama_10000, &bsma_10000, &bsma_large_10000,
+        &ffma_50000, &nfma_50000, &pama_50000, &bsma_50000
+    };
+
+    for (int n=0; n<sizeN.size(); n++)
+    {
+        std::cout << "N=" << sizeN[n] << "\n";
+        for (int m=0; m<5; m++)
+        {
+            std::size_t bytes_number = bytes_alloc;
+            if (m == 4)
+            {
+                if (n == 2)
+                {
+                    std::cout << "\t" << STRINGS[4] << "Buffer too large\n";
+                    break;
+                }
+                bytes_number = bytes_alloc_large;
+            }
+
+            auto start_time = std::chrono::high_resolution_clock::now();
+            int i=0;
+            while (i<1000)
+            {  
+                mem_allocs[(5*n)+m]->allocate(bytes_number);
+                i++;
+            }
+            auto end_time = std::chrono::high_resolution_clock::now();
+
+            double time = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
+
+            std::cout << "\t" << STRINGS[m%5] << time/1000000 << "ms\n";
+        }
+    }
+}
+
+TEST(Allocation, NFreeBlocks)
+{
+    const std::size_t bytes_alloc = 1;
+    const std::size_t bytes_alloc_large = 57+(7*NODESIZE_BS);
+
+    const std::array<std::size_t, 3> sizeN = {1000, 10000, 50000};
+    
+    std::array<std::uint8_t, 10 + (1999*bytes_alloc) + (2001*NODESIZE_FF)> arr1_1000;
+    FirstFitMemoryAllocator ffma_1000(arr1_1000);
+
+    std::array<std::uint8_t, 10 + (1999*bytes_alloc) + (2001*NODESIZE_FF)> arr2_1000;
+    NextFitMemoryAllocator nfma_1000(arr2_1000);
+
+    std::array<std::uint8_t, 16008 + (2001*NODESIZE_PA)> arr3_1000;
+    PoolAllocationMemoryAllocator<8> pama_1000(arr3_1000);
+
+    std::array<std::uint8_t, 16008 + (2001*NODESIZE_BS)> arr4_1000;
+    BuddySystemMemoryAllocator<8> bsma_1000(arr4_1000);
+
+    std::array<std::uint8_t, 128072 + (16008*NODESIZE_BS)> arr5_1000;
+    BuddySystemMemoryAllocator<8> bsma_large_1000(arr5_1000);
+
+    std::array<std::uint8_t, 9 + (20000*(1+NODESIZE_FF)) + NODESIZE_FF> arr1_10000;
+    FirstFitMemoryAllocator ffma_10000(arr1_10000);
+
+    std::array<std::uint8_t, 9 + (20000*(1+NODESIZE_FF)) + NODESIZE_FF> arr2_10000;
+    NextFitMemoryAllocator nfma_10000(arr2_10000);
+
+    std::array<std::uint8_t, 160008 + (20001*NODESIZE_PA)> arr3_10000;
+    PoolAllocationMemoryAllocator<8> pama_10000(arr3_10000);
+
+    std::array<std::uint8_t, 9 + (100000*(1+NODESIZE_FF)) + NODESIZE_FF> arr1_50000;
+    FirstFitMemoryAllocator ffma_50000(arr1_50000);
+
+    std::array<std::uint8_t, 9 + (100000*(1+NODESIZE_FF)) + NODESIZE_FF> arr2_50000;
+    NextFitMemoryAllocator nfma_50000(arr2_50000);
+
+    std::array<MemoryAllocator*, 10> mem_allocs = {
+        &ffma_1000, &nfma_1000, &pama_1000, &bsma_1000, &bsma_large_1000,
+        &ffma_10000, &nfma_10000, &pama_10000,
+        &ffma_50000, &nfma_50000
+    };
+
+    std::cout << "N=" << sizeN[0] << "\n";
+    for (int m=0; m<5; m++)
+    {
+        std::size_t bytes_number = bytes_alloc;
+        if (m == 4)
+        {
+            bytes_number = bytes_alloc_large;
+        }
+
+        std::array<void*, 1000> allocs;
+
+        auto addr = mem_allocs[m]->allocate(bytes_number+1);
+        allocs[0] = addr;
         
-        time1 += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
+        int i1=0;
+        while (i1<(sizeN[0]-2) && addr != nullptr)
+        {  
+            mem_allocs[m]->allocate(bytes_number);
+            addr = mem_allocs[m]->allocate(bytes_number);
 
-        ffma.deallocate(b);
+            allocs[i1+1] = addr;
 
-        i1++;
-    }
+            i1++;
+        }
+        if (i1 < (sizeN[0]-2))
+        {
+            std::cout << "nullptr at i1=" << i1 << "\n";
+        }
 
-    std::cout << "FirstFit time:\t" << time1/1000000 << "ms\n";
+        mem_allocs[m]->allocate(bytes_number);
 
-    std::array<std::uint8_t, 256> arr2;
-    NextFitMemoryAllocator nfma(arr2);
+        auto addr2 = mem_allocs[m]->allocate(bytes_number+7);
+        allocs[(sizeN[0]-1)] = mem_allocs[m]->allocate(bytes_number+7);
 
-    double time2 = 0;
-
-    int i2=0;
-    while (i2<1000)
-    {
-        auto start_time = std::chrono::high_resolution_clock::now();
-        auto b = nfma.allocate(1);
-        auto end_time = std::chrono::high_resolution_clock::now();
+        mem_allocs[m]->allocate(bytes_number+1);
         
-        time2 += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
-
-        nfma.deallocate(b);
-
-        i2++;
-    }
-
-    std::cout << "NextFit time:\t" << time2/1000000 << "ms\n";
-
-    std::array<std::uint8_t, 256> arr3;
-    PoolAllocationMemoryAllocator<8> pama(arr2);
-
-    double time3 = 0;
-
-    int i3=0;
-    while (i3<1000)
-    {
-        auto start_time = std::chrono::high_resolution_clock::now();
-        auto b = pama.allocate(1);
-        auto end_time = std::chrono::high_resolution_clock::now();
-        
-        time3 += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
-
-        nfma.deallocate(b);
-
-        i3++;
-    }
-
-    std::cout << "PoolAllocation time:\t" << time3/1000000 << "ms\n";
-}
-
-TEST(Allocation, First_10000Times)
-{
-    std::array<std::uint8_t, 256> arr1;
-    FirstFitMemoryAllocator ffma(arr1);
-
-    double time1 = 0;
-
-    int i1=0;
-    while (i1<10000)
-    {
-        auto start_time1 = std::chrono::high_resolution_clock::now();
-        auto b1 = ffma.allocate(1);
-        auto end_time1 = std::chrono::high_resolution_clock::now();
-        
-        time1 += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time1 - start_time1).count();
-
-        ffma.deallocate(b1);
-
-        i1++;
-    }
-
-    std::array<std::uint8_t, 256> arr2;
-    NextFitMemoryAllocator nfma(arr2);
-
-    double time2 = 0;
-
-    int i2=0;
-    while (i2<10000)
-    {
-        auto start_time1 = std::chrono::high_resolution_clock::now();
-        auto b1 = nfma.allocate(1);
-        auto end_time1 = std::chrono::high_resolution_clock::now();
-        
-        time2 += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time1 - start_time1).count();
-
-        nfma.deallocate(b1);
-
-        i2++;
-    }
-
-    std::cout << "FirstFit time:\t" << time1/1000000 << "ms\n";
-    std::cout << "NextFit time:\t" << time2/1000000 << "ms\n";
-}
-
-TEST(Allocation, First_50000Times)
-{
-    std::array<std::uint8_t, 256> arr1;
-    FirstFitMemoryAllocator ffma(arr1);
-
-    double time1 = 0;
-
-    int i1=0;
-    while (i1<50000)
-    {
-        auto start_time1 = std::chrono::high_resolution_clock::now();
-        auto b1 = ffma.allocate(1);
-        auto end_time1 = std::chrono::high_resolution_clock::now();
-        
-        time1 += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time1 - start_time1).count();
-
-        ffma.deallocate(b1);
-
-        i1++;
-    }
-
-    std::array<std::uint8_t, 256> arr2;
-    NextFitMemoryAllocator nfma(arr2);
-
-    double time2 = 0;
-
-    int i2=0;
-    while (i2<50000)
-    {
-        auto start_time1 = std::chrono::high_resolution_clock::now();
-        auto b1 = nfma.allocate(1);
-        auto end_time1 = std::chrono::high_resolution_clock::now();
-        
-        time2 += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time1 - start_time1).count();
-
-        nfma.deallocate(b1);
-
-        i2++;
-    }
-
-    std::cout << "FirstFit time:\t" << time1/1000000 << "ms\n";
-    std::cout << "NextFit time:\t" << time2/1000000 << "ms\n";
-}
-
-TEST(Allocation, 1000Times)
-{
-    std::array<std::uint8_t, 25024> arr1;
-    FirstFitMemoryAllocator ffma(arr1);
-
-    auto start_time1 = std::chrono::high_resolution_clock::now();
-    int i1=0;
-    while (i1<1000)
-    {  
-        ffma.allocate(1);
-        i1++;
-    }
-    auto end_time1 = std::chrono::high_resolution_clock::now();
-
-    double time1 = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time1 - start_time1).count();
-
-    std::array<std::uint8_t, 25024> arr2;
-    NextFitMemoryAllocator nfma(arr2);
-
-    auto start_time2 = std::chrono::high_resolution_clock::now();
-    int i2=0;
-    while (i2<1000)
-    {  
-        nfma.allocate(1);
-        i2++;
-    }
-    auto end_time2 = std::chrono::high_resolution_clock::now();
-
-    double time2 = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time2 - start_time2).count();
-
-    std::cout << "FirstFit time:\t" << time1/1000000 << "ms\n";
-    std::cout << "NextFit time:\t" << time2/1000000 << "ms\n";
-}
-
-TEST(Allocation, 10000Times)
-{
-    std::array<std::uint8_t, 250024> arr1;
-    FirstFitMemoryAllocator ffma(arr1);
-
-    auto start_time1 = std::chrono::high_resolution_clock::now();
-    int i1=0;
-    while (i1<10000)
-    {  
-        ffma.allocate(1);
-        i1++;
-    }
-    auto end_time1 = std::chrono::high_resolution_clock::now();
-
-    double time1 = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time1 - start_time1).count();
-
-    std::array<std::uint8_t, 250024> arr2;
-    NextFitMemoryAllocator nfma(arr2);
-
-    auto start_time2 = std::chrono::high_resolution_clock::now();
-    int i2=0;
-    while (i2<10000)
-    {  
-        nfma.allocate(1);
-        i2++;
-    }
-    auto end_time2 = std::chrono::high_resolution_clock::now();
-
-    double time2 = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time2 - start_time2).count();
-
-    std::cout << "FirstFit time:\t" << time1/1000000 << "ms\n";
-    std::cout << "NextFit time:\t" << time2/1000000 << "ms\n";
-}
-
-TEST(Allocation, 50000Times)
-{
-    std::array<std::uint8_t, 1275048> arr1;
-    FirstFitMemoryAllocator ffma(arr1);
-
-    auto start_time1 = std::chrono::high_resolution_clock::now();
-    int i1=0;
-    while (i1<50000)
-    {  
-        ffma.allocate(1);
-        i1++;
-    }
-    auto end_time1 = std::chrono::high_resolution_clock::now();
-
-    double time1 = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time1 - start_time1).count();
-
-    std::array<std::uint8_t, 1275048> arr2;
-    NextFitMemoryAllocator nfma(arr2);
-
-    auto start_time2 = std::chrono::high_resolution_clock::now();
-    int i2=0;
-    while (i2<50000)
-    {  
-        nfma.allocate(1);
-        i2++;
-    }
-    auto end_time2 = std::chrono::high_resolution_clock::now();
-
-    double time2 = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time2 - start_time2).count();
-
-    std::cout << "FirstFit time:\t" << time1/1000000 << "ms\n";
-    std::cout << "NextFit time:\t" << time2/1000000 << "ms\n";
-}
-
-TEST(Allocation, 1000FreeBlocks)
-{
-    std::array<std::uint8_t, 50033> arr1;
-    FirstFitMemoryAllocator ffma(arr1);
-
-    std::array<void*, 1000> allocs1;
-
-    auto addr = ffma.allocate(2);
-    allocs1[0] = addr;
-    
-    int i1=0;
-    while (i1<998 && addr != nullptr)
-    {  
-        ffma.allocate(1);
-        addr = ffma.allocate(1);
-
-        allocs1[i1+1] = addr;
-
-        i1++;
-    }
-    if (i1 < 998)
-    {
-        std::cout << "nullptr at i1=" << i1 << "\n";
-    }
-
-    ffma.allocate(1);
-
-    auto addr2 = ffma.allocate(8);
-    allocs1[999] = ffma.allocate(8);
-
-    ffma.allocate(2);
-    
-    int i2=0;
-    while (i2<1000)
-    {
-        ffma.deallocate(allocs1[i2]);
-        i2++;
-    }
-
-    auto start_time1 = std::chrono::high_resolution_clock::now();
-    auto b1 = ffma.allocate(8);
-    auto end_time1 = std::chrono::high_resolution_clock::now();
-
-    double time1 = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time1 - start_time1).count();
-
-    std::array<std::uint8_t, 50033> arr2;
-    NextFitMemoryAllocator nfma(arr2);
-
-    std::array<void*, 1000> allocs2;
-
-    auto addr3 = nfma.allocate(2);
-    allocs2[0] = addr3;
-    
-    int i3=0;
-    while (i3<998 && addr3 != nullptr)
-    {  
-        nfma.allocate(1);
-        addr3 = nfma.allocate(1);
-
-        allocs2[i3+1] = addr3;
-
-        i3++;
-    }
-    if (i3 < 998)
-    {
-        std::cout << "nullptr at i3=" << i3 << "\n";
-    }
-
-    nfma.allocate(1);
-
-    auto addr4 = nfma.allocate(8);
-    allocs2[999] = nfma.allocate(8);
-
-    nfma.allocate(2);
-    
-    int i4=0;
-    while (i4<1000)
-    {
-        nfma.deallocate(allocs2[i4]);
-        i4++;
-    }
-
-    auto start_time2 = std::chrono::high_resolution_clock::now();
-    auto b2 = nfma.allocate(8);
-    auto end_time2 = std::chrono::high_resolution_clock::now();
-
-    double time2 = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time2 - start_time2).count();
-
-    std::cout << "FirstFit time:\t" << time1/1000000 << "ms\n";
-    std::cout << "NextFit time:\t" << time2/1000000 << "ms\n";
-}
-
-TEST(Allocation, 10000FreeBlocks)
-{
-    std::array<std::uint8_t, 9 + (20000*(1+NODESIZE_FF)) + NODESIZE_FF> arr1;
-    FirstFitMemoryAllocator ffma(arr1);
-
-    std::array<void*, 10000> allocs1;
-
-    auto addr = ffma.allocate(2);
-    allocs1[0] = addr;
-    
-    int i1=0;
-    while (i1<9998 && addr != nullptr)
-    {  
-        ffma.allocate(1);
-        addr = ffma.allocate(1);
-
-        allocs1[i1+1] = addr;
-
-        i1++;
-    }
-    if (i1 < 9998)
-    {
-        std::cout << "nullptr at i1=" << i1 << "\n";
-    }
-
-    ffma.allocate(1);
-
-    auto addr2 = ffma.allocate(8);
-    allocs1[9999] = ffma.allocate(8);
-
-    ffma.allocate(2);
-    
-    int i2=0;
-    while (i2<10000)
-    {
-        ffma.deallocate(allocs1[i2]);
-        i2++;
-    }
-
-    auto start_time1 = std::chrono::high_resolution_clock::now();
-    auto b1 = ffma.allocate(8);
-    auto end_time1 = std::chrono::high_resolution_clock::now();
-
-    double time1 = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time1 - start_time1).count();
-
-    std::array<std::uint8_t, 9 + (20000*(1+NODESIZE_FF)) + NODESIZE_FF> arr2;
-    NextFitMemoryAllocator nfma(arr2);
-
-    std::array<void*, 10000> allocs2;
-
-    auto addr3 = nfma.allocate(2);
-    allocs2[0] = addr3;
-    
-    int i3=0;
-    while (i3<9998 && addr3 != nullptr)
-    {  
-        nfma.allocate(1);
-        addr3 = nfma.allocate(1);
-
-        allocs2[i3+1] = addr3;
-
-        i3++;
-    }
-    if (i3 < 9998)
-    {
-        std::cout << "nullptr at i3=" << i3 << "\n";
-    }
-
-    nfma.allocate(1);
-
-    auto addr4 = nfma.allocate(8);
-    allocs2[9999] = nfma.allocate(8);
-
-    nfma.allocate(2);
-    
-    int i4=0;
-    while (i4<10000)
-    {
-        nfma.deallocate(allocs2[i4]);
-        i4++;
-    }
-
-    auto start_time2 = std::chrono::high_resolution_clock::now();
-    auto b2 = nfma.allocate(8);
-    auto end_time2 = std::chrono::high_resolution_clock::now();
-
-    double time2 = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time2 - start_time2).count();
-
-    std::cout << "FirstFit time:\t" << time1/1000000 << "ms\n";
-    std::cout << "NextFit time:\t" << time2/1000000 << "ms\n";
-}
-
-TEST(Allocation, 50000FreeBlocks)
-{
-    std::array<std::uint8_t, 9 + (100000*(1+NODESIZE_FF)) + NODESIZE_FF> arr1;
-    FirstFitMemoryAllocator ffma(arr1);
-
-    std::array<void*, 50000> allocs1;
-
-    auto addr = ffma.allocate(2);
-    allocs1[0] = addr;
-    
-    int i1=0;
-    while (i1<49998 && addr != nullptr)
-    {  
-        ffma.allocate(1);
-        addr = ffma.allocate(1);
-
-        allocs1[i1+1] = addr;
-
-        i1++;
-    }
-    if (i1 < 49998)
-    {
-        std::cout << "nullptr at i1=" << i1 << "\n";
-    }
-
-    ffma.allocate(1);
-
-    auto addr2 = ffma.allocate(8);
-    allocs1[49999] = ffma.allocate(8);
-
-    ffma.allocate(2);
-    
-    int i2=0;
-    while (i2<50000)
-    {
-        ffma.deallocate(allocs1[i2]);
-        i2++;
-    }
-
-    auto start_time1 = std::chrono::high_resolution_clock::now();
-    auto b1 = ffma.allocate(8);
-    auto end_time1 = std::chrono::high_resolution_clock::now();
-
-    double time1 = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time1 - start_time1).count();
-
-    std::array<std::uint8_t, 9 + (100000*(1+NODESIZE_FF)) + NODESIZE_FF> arr2;
-    NextFitMemoryAllocator nfma(arr2);
-
-    std::array<void*, 50000> allocs2;
-
-    auto addr3 = nfma.allocate(2);
-    allocs2[0] = addr3;
-    
-    int i3=0;
-    while (i3<49998 && addr3 != nullptr)
-    {  
-        nfma.allocate(1);
-        addr3 = nfma.allocate(1);
-
-        allocs2[i3+1] = addr3;
-
-        i3++;
-    }
-    if (i3 < 49998)
-    {
-        std::cout << "nullptr at i3=" << i3 << "\n";
-    }
-
-    nfma.allocate(1);
-
-    auto addr4 = nfma.allocate(8);
-    allocs2[49999] = nfma.allocate(8);
-
-    nfma.allocate(2);
-    
-    int i4=0;
-    while (i4<50000)
-    {
-        nfma.deallocate(allocs2[i4]);
-        i4++;
-    }
-
-    auto start_time2 = std::chrono::high_resolution_clock::now();
-    auto b2 = nfma.allocate(8);
-    auto end_time2 = std::chrono::high_resolution_clock::now();
-
-    double time2 = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time2 - start_time2).count();
-
-    std::cout << "FirstFit time:\t" << time1/1000000 << "ms\n";
-    std::cout << "NextFit time:\t" << time2/1000000 << "ms\n";
-}
-
-TEST(Allocation, NoSpace_NoFreeBlocks)
-{
-    std::array<std::uint8_t, 256> arr1;
-    FirstFitMemoryAllocator ffma(arr1);
-
-    auto addr1 = ffma.allocate(8);
-
-    int i1=0;
-    while (i1<7 && addr1 != nullptr)
-    {
-        addr1 = ffma.allocate(8);
-        i1++;
-    }
-    if (i1 < 7)
-    {
-        std::cout << "nullptr at i1=" << i1 << "\n";
-    }
-
-    auto start_time1 = std::chrono::high_resolution_clock::now();
-    auto b1 = ffma.allocate(64);
-    auto end_time1 = std::chrono::high_resolution_clock::now();
-
-    double time1 = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time1 - start_time1).count();
-
-    std::array<std::uint8_t, 256> arr2;
-    NextFitMemoryAllocator nfma(arr2);
-
-    auto addr2 = nfma.allocate(8);
-
-    int i2=0;
-    while (i2<7 && addr2 != nullptr)
-    {
-        addr2 = nfma.allocate(8);
-        i2++;
-    }
-    if (i2 < 7)
-    {
-        std::cout << "nullptr at i2=" << i2 << "\n";
-    }
-
-    auto start_time2 = std::chrono::high_resolution_clock::now();
-    auto b2 = ffma.allocate(64);
-    auto end_time2 = std::chrono::high_resolution_clock::now();
-
-    double time2 = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time2 - start_time2).count();
-
-    std::cout << "FirstFit time:\t" << time1/1000000 << "ms\n";
-    std::cout << "NextFit time:\t" << time2/1000000 << "ms\n";
-}
-
-TEST(Allocation, NoSpace_1000FreeBlocksTooSmall)
-{
-    std::array<std::uint8_t, 2000*(1+NODESIZE_FF)> arr1;
-    FirstFitMemoryAllocator ffma(arr1);
-
-    std::array<void*, 1000> allocs1;
-
-    auto addr1 = ffma.allocate(1);
-    allocs1[0] = addr1;
-    
-    int i1=0;
-    while (i1<999 && addr1 != nullptr)
-    {  
-        ffma.allocate(1);
-        addr1 = ffma.allocate(1);
-
-        allocs1[i1+1] = addr1;
-
-        i1++;
-    }
-    if (i1 < 999)
-    {
-        std::cout << "nullptr at i1=" << i1 << "\n";
-    }
-
-    ffma.allocate(1);
-
-    int i2=0;
-    while (i2<1000)
-    {
-        ffma.deallocate(allocs1[i2]);
-        i2++;
-    }
-
-    auto start_time1 = std::chrono::high_resolution_clock::now();
-    auto b1 = ffma.allocate(8);
-    auto end_time1 = std::chrono::high_resolution_clock::now();
-
-    EXPECT_EQ(b1, nullptr);
-
-    double time1 = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time1 - start_time1).count();
-
-    std::array<std::uint8_t, 2000*(1+NODESIZE_FF)> arr2;
-    NextFitMemoryAllocator nfma(arr2);
-
-    std::array<void*, 1000> allocs2;
-
-    auto addr2 = nfma.allocate(1);
-    allocs2[0] = addr2;
-    
-    int i3=0;
-    while (i3<999 && addr2 != nullptr)
-    {  
-        nfma.allocate(1);
-        addr2 = nfma.allocate(1);
-
-        allocs2[i3+1] = addr2;
-
-        i3++;
-    }
-    if (i3 < 999)
-    {
-        std::cout << "nullptr at i3=" << i3 << "\n";
-    }
-
-    nfma.allocate(1);
-
-    int i4=0;
-    while (i4<1000)
-    {
-        nfma.deallocate(allocs2[i4]);
-        i4++;
-    }
-
-    auto start_time2 = std::chrono::high_resolution_clock::now();
-    auto b2 = nfma.allocate(8);
-    auto end_time2 = std::chrono::high_resolution_clock::now();
-
-    EXPECT_EQ(b2, nullptr);
-
-    double time2 = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time2 - start_time2).count();
-
-    std::cout << "FirstFit time:\t" << time1/1000000 << "ms\n";
-    std::cout << "NextFit time:\t" << time2/1000000 << "ms\n";
-}
-
-TEST(Allocation, NoSpace_10000FreeBlocksTooSmall)
-{
-    std::array<std::uint8_t, 20000*(1+NODESIZE_FF)> arr1;
-    FirstFitMemoryAllocator ffma(arr1);
-
-    std::array<void*, 10000> allocs1;
-
-    auto addr1 = ffma.allocate(1);
-    allocs1[0] = addr1;
-    
-    int i1=0;
-    while (i1<9999 && addr1 != nullptr)
-    {  
-        ffma.allocate(1);
-        addr1 = ffma.allocate(1);
-
-        allocs1[i1+1] = addr1;
-
-        i1++;
-    }
-    if (i1 < 9999)
-    {
-        std::cout << "nullptr at i1=" << i1 << "\n";
-    }
-
-    ffma.allocate(1);
-
-    int i2=0;
-    while (i2<10000)
-    {
-        ffma.deallocate(allocs1[i2]);
-        i2++;
-    }
-
-    auto start_time1 = std::chrono::high_resolution_clock::now();
-    auto b1 = ffma.allocate(8);
-    auto end_time1 = std::chrono::high_resolution_clock::now();
-
-    EXPECT_EQ(b1, nullptr);
-
-    double time1 = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time1 - start_time1).count();
-
-    std::array<std::uint8_t, 20000*(1+NODESIZE_FF)> arr2;
-    NextFitMemoryAllocator nfma(arr2);
-
-    std::array<void*, 10000> allocs2;
-
-    auto addr2 = nfma.allocate(1);
-    allocs2[0] = addr2;
-    
-    int i3=0;
-    while (i3<9999 && addr2 != nullptr)
-    {  
-        nfma.allocate(1);
-        addr2 = nfma.allocate(1);
-
-        allocs2[i3+1] = addr2;
-
-        i3++;
-    }
-    if (i3 < 9999)
-    {
-        std::cout << "nullptr at i3=" << i3 << "\n";
-    }
-
-    nfma.allocate(1);
-
-    int i4=0;
-    while (i4<10000)
-    {
-        nfma.deallocate(allocs2[i4]);
-        i4++;
-    }
-
-    auto start_time2 = std::chrono::high_resolution_clock::now();
-    auto b2 = nfma.allocate(8);
-    auto end_time2 = std::chrono::high_resolution_clock::now();
-
-    EXPECT_EQ(b2, nullptr);
-
-    double time2 = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time2 - start_time2).count();
-
-    std::cout << "FirstFit time:\t" << time1/1000000 << "ms\n";
-    std::cout << "NextFit time:\t" << time2/1000000 << "ms\n";
-}
-
-TEST(Allocation, NoSpace_50000FreeBlocksTooSmall)
-{
-    std::array<std::uint8_t, 100000*(1+NODESIZE_FF)> arr1;
-    FirstFitMemoryAllocator ffma(arr1);
-
-    std::array<void*, 50000> allocs1;
-
-    auto addr1 = ffma.allocate(1);
-    allocs1[0] = addr1;
-    
-    int i1=0;
-    while (i1<49999 && addr1 != nullptr)
-    {  
-        ffma.allocate(1);
-        addr1 = ffma.allocate(1);
-
-        allocs1[i1+1] = addr1;
-
-        i1++;
-    }
-    if (i1 < 49999)
-    {
-        std::cout << "nullptr at i1=" << i1 << "\n";
-    }
-
-    ffma.allocate(1);
-
-    int i2=0;
-    while (i2<50000)
-    {
-        ffma.deallocate(allocs1[i2]);
-        i2++;
-    }
-
-    auto start_time1 = std::chrono::high_resolution_clock::now();
-    auto b1 = ffma.allocate(8);
-    auto end_time1 = std::chrono::high_resolution_clock::now();
-
-    EXPECT_EQ(b1, nullptr);
-
-    double time1 = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time1 - start_time1).count();
-
-    std::array<std::uint8_t, 100000*(1+NODESIZE_FF)> arr2;
-    NextFitMemoryAllocator nfma(arr2);
-
-    std::array<void*, 50000> allocs2;
-
-    auto addr2 = nfma.allocate(1);
-    allocs2[0] = addr2;
-    
-    int i3=0;
-    while (i3<49999 && addr2 != nullptr)
-    {  
-        nfma.allocate(1);
-        addr2 = nfma.allocate(1);
-
-        allocs2[i3+1] = addr2;
-
-        i3++;
-    }
-    if (i3 < 49999)
-    {
-        std::cout << "nullptr at i3=" << i3 << "\n";
-    }
-
-    nfma.allocate(1);
-
-    int i4=0;
-    while (i4<50000)
-    {
-        nfma.deallocate(allocs2[i4]);
-        i4++;
-    }
-
-    auto start_time2 = std::chrono::high_resolution_clock::now();
-    auto b2 = nfma.allocate(8);
-    auto end_time2 = std::chrono::high_resolution_clock::now();
-
-    EXPECT_EQ(b2, nullptr);
-
-    double time2 = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time2 - start_time2).count();
-
-    std::cout << "FirstFit time:\t" << time1/1000000 << "ms\n";
-    std::cout << "NextFit time:\t" << time2/1000000 << "ms\n";
-}
-
-TEST(Deallocation, First_1000Times)
-{
-    std::array<std::uint8_t, 256> arr1;
-    FirstFitMemoryAllocator ffma(arr1);
-
-    double time1 = 0;
-
-    int i1=0;
-    while (i1<1000)
-    {
-        auto b1 = ffma.allocate(1);
+        int i2=0;
+        while (i2<(sizeN[0]-2))
+        {
+            mem_allocs[m]->deallocate(allocs[i2]);
+            i2++;
+        }
 
         auto start_time = std::chrono::high_resolution_clock::now();
-        ffma.deallocate(b1);
+        auto b = mem_allocs[m]->allocate(8);
         auto end_time = std::chrono::high_resolution_clock::now();
-        
-        time1 += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
 
-        i1++;
+        double time = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
+
+        std::cout << "\t" << STRINGS[m%5] << time/1000000 << "ms\n";
     }
 
-    std::array<std::uint8_t, 256> arr2;
-    NextFitMemoryAllocator nfma(arr2);
-
-    double time2 = 0;
-
-    int i2=0;
-    while (i2<1000)
+    std::cout << "N=" << sizeN[1] << "\n";
+    for (int m=0; m<3; m++)
     {
-        auto b1 = nfma.allocate(1);
+        const std::size_t bytes_number = bytes_alloc;
+        
+        std::array<void*, 10000> allocs;
+
+        auto addr = mem_allocs[5+m]->allocate(bytes_number+1);
+        allocs[0] = addr;
+        
+        int i1=0;
+        while (i1<(sizeN[1]-2) && addr != nullptr)
+        {  
+            mem_allocs[5+m]->allocate(bytes_number);
+            addr = mem_allocs[5+m]->allocate(bytes_number);
+
+            allocs[i1+1] = addr;
+
+            i1++;
+        }
+        if (i1 < (sizeN[1]-2))
+        {
+            std::cout << "nullptr at i1=" << i1 << "\n";
+        }
+
+        mem_allocs[5+m]->allocate(bytes_number);
+
+        auto addr2 = mem_allocs[5+m]->allocate(bytes_number+7);
+        allocs[(sizeN[1]-1)] = mem_allocs[5+m]->allocate(bytes_number+7);
+
+        mem_allocs[5+m]->allocate(bytes_number+1);
+        
+        int i2=0;
+        while (i2<(sizeN[1]-2))
+        {
+            mem_allocs[5+m]->deallocate(allocs[i2]);
+            i2++;
+        }
 
         auto start_time = std::chrono::high_resolution_clock::now();
-        nfma.deallocate(b1);
+        auto b = mem_allocs[5+m]->allocate(8);
         auto end_time = std::chrono::high_resolution_clock::now();
-        
-        time2 += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
 
-        i2++;
+        double time = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
+
+        std::cout << "\t" << STRINGS[m%5] << time/1000000 << "ms\n";
     }
+    std::cout << "\t" << STRINGS[3] << "Buffer too large\n";
+    std::cout << "\t" << STRINGS[4] << "Buffer too large\n";
 
-    std::cout << "FirstFit time:\t" << time1/1000000 << "ms\n";
-    std::cout << "NextFit time:\t" << time2/1000000 << "ms\n";
-}
-
-TEST(Deallocation, First_10000Times)
-{
-    std::array<std::uint8_t, 256> arr1;
-    FirstFitMemoryAllocator ffma(arr1);
-
-    double time1 = 0;
-
-    int i1=0;
-    while (i1<10000)
+    std::cout << "N=" << sizeN[2] << "\n";
+    for (int m=0; m<2; m++)
     {
-        auto b1 = ffma.allocate(1);
+        const std::size_t bytes_number = bytes_alloc;
+
+        std::array<void*, 50000> allocs;
+
+        auto addr = mem_allocs[8+m]->allocate(bytes_number+1);
+        allocs[0] = addr;
+        
+        int i1=0;
+        while (i1<(sizeN[2]-2) && addr != nullptr)
+        {  
+            mem_allocs[8+m]->allocate(bytes_number);
+            addr = mem_allocs[8+m]->allocate(bytes_number);
+
+            allocs[i1+1] = addr;
+
+            i1++;
+        }
+        if (i1 < (sizeN[2]-2))
+        {
+            std::cout << "nullptr at i1=" << i1 << "\n";
+        }
+
+        mem_allocs[8+m]->allocate(bytes_number);
+
+        auto addr2 = mem_allocs[8+m]->allocate(bytes_number+7);
+        allocs[(sizeN[2]-1)] = mem_allocs[8+m]->allocate(bytes_number+7);
+
+        mem_allocs[8+m]->allocate(bytes_number+1);
+        
+        int i2=0;
+        while (i2<(sizeN[2]-2))
+        {
+            mem_allocs[8+m]->deallocate(allocs[i2]);
+            i2++;
+        }
 
         auto start_time = std::chrono::high_resolution_clock::now();
-        ffma.deallocate(b1);
+        auto b = mem_allocs[8+m]->allocate(8);
         auto end_time = std::chrono::high_resolution_clock::now();
-        
-        time1 += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
 
-        i1++;
+        double time = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
+
+        std::cout << "\t" << STRINGS[m%5] << time/1000000 << "ms\n";
     }
+    std::cout << "\t" << STRINGS[2] << "Buffer too large\n";
+    std::cout << "\t" << STRINGS[3] << "Buffer too large\n";
+    std::cout << "\t" << STRINGS[4] << "Buffer too large\n";
+}
 
-    std::array<std::uint8_t, 256> arr2;
-    NextFitMemoryAllocator nfma(arr2);
+TEST(Allocation, NoSpace_NFreeBlocks_TooSmall)
+{
+    const std::size_t bytes_alloc = 1;
+    const std::size_t bytes_alloc_large = 57+(7*NODESIZE_BS);
 
-    double time2 = 0;
+    const std::array<std::size_t, 3> sizeN = {1000, 10000, 50000};
+    
+    std::array<std::uint8_t, 2000*(1+NODESIZE_FF)> arr1_1000;
+    FirstFitMemoryAllocator ffma_1000(arr1_1000);
 
-    int i2=0;
-    while (i2<10000)
+    std::array<std::uint8_t, 2000*(1+NODESIZE_FF)> arr2_1000;
+    NextFitMemoryAllocator nfma_1000(arr2_1000);
+
+    std::array<std::uint8_t, 20000*(1+NODESIZE_FF)> arr1_10000;
+    FirstFitMemoryAllocator ffma_10000(arr1_10000);
+
+    std::array<std::uint8_t, 20000*(1+NODESIZE_FF)> arr2_10000;
+    NextFitMemoryAllocator nfma_10000(arr2_10000);
+
+    std::array<std::uint8_t, 100000*(1+NODESIZE_FF)> arr1_50000;
+    FirstFitMemoryAllocator ffma_50000(arr1_50000);
+
+    std::array<std::uint8_t, 100000*(1+NODESIZE_FF)> arr2_50000;
+    NextFitMemoryAllocator nfma_50000(arr2_50000);
+
+    std::array<MemoryAllocator*, 6> mem_allocs = {
+        &ffma_1000, &nfma_1000,
+        &ffma_10000, &nfma_10000,
+        &ffma_50000, &nfma_50000
+    };
+
+    std::cout << "N=" << sizeN[0] << "\n";
+    for (int m=0; m<2; m++)
     {
-        auto b1 = nfma.allocate(1);
+        const std::size_t bytes_number = bytes_alloc;
+
+        std::array<void*, 1000> allocs;
+
+        auto addr = mem_allocs[m]->allocate(1);
+        allocs[0] = addr;
+        
+        int i1=0;
+        while (i1<(sizeN[0]-1) && addr != nullptr)
+        {  
+            mem_allocs[m]->allocate(bytes_number);
+            addr = mem_allocs[m]->allocate(bytes_number);
+
+            allocs[i1+1] = addr;
+
+            i1++;
+        }
+        if (i1 < (sizeN[0]-1))
+        {
+            std::cout << "nullptr at i1=" << i1 << "\n";
+        }
+
+        mem_allocs[m]->allocate(bytes_number);
+
+        int i2=0;
+        while (i2<sizeN[0])
+        {
+            mem_allocs[m]->deallocate(allocs[i2]);
+            i2++;
+        }
 
         auto start_time = std::chrono::high_resolution_clock::now();
-        nfma.deallocate(b1);
+        auto b = mem_allocs[m]->allocate(8+(7*NODESIZE_BS));
         auto end_time = std::chrono::high_resolution_clock::now();
+
+        EXPECT_EQ(b, nullptr);
+
+        double time = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
         
-        time2 += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
-
-        i2++;
+        std::cout << "\t" << STRINGS[m%5] << time/1000000 << "ms\n";
     }
+    std::cout << "\t" << STRINGS[2] << "N/A\n";
+    std::cout << "\t" << STRINGS[3] << "N/A\n";
+    std::cout << "\t" << STRINGS[4] << "N/A\n";
 
-    std::cout << "FirstFit time:\t" << time1/1000000 << "ms\n";
-    std::cout << "NextFit time:\t" << time2/1000000 << "ms\n";
-}
-
-TEST(Deallocation, First_50000Times)
-{
-    std::array<std::uint8_t, 256> arr1;
-    FirstFitMemoryAllocator ffma(arr1);
-
-    double time1 = 0;
-
-    int i1=0;
-    while (i1<50000)
+    std::cout << "N=" << sizeN[1] << "\n";
+    for (int m=0; m<2; m++)
     {
-        auto b1 = ffma.allocate(1);
+        const std::size_t bytes_number = bytes_alloc;
+
+        std::array<void*, 10000> allocs;
+
+        auto addr = mem_allocs[2+m]->allocate(1);
+        allocs[0] = addr;
+        
+        int i1=0;
+        while (i1<(sizeN[1]-1) && addr != nullptr)
+        {  
+            mem_allocs[2+m]->allocate(bytes_number);
+            addr = mem_allocs[2+m]->allocate(bytes_number);
+
+            allocs[i1+1] = addr;
+
+            i1++;
+        }
+        if (i1 < (sizeN[1]-1))
+        {
+            std::cout << "nullptr at i1=" << i1 << "\n";
+        }
+
+        mem_allocs[2+m]->allocate(bytes_number);
+
+        int i2=0;
+        while (i2<sizeN[1])
+        {
+            mem_allocs[2+m]->deallocate(allocs[i2]);
+            i2++;
+        }
 
         auto start_time = std::chrono::high_resolution_clock::now();
-        ffma.deallocate(b1);
+        auto b = mem_allocs[2+m]->allocate(8+(7*NODESIZE_BS));
         auto end_time = std::chrono::high_resolution_clock::now();
+
+        EXPECT_EQ(b, nullptr);
+
+        double time = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
         
-        time1 += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
-
-        i1++;
+        std::cout << "\t" << STRINGS[m%5] << time/1000000 << "ms\n";
     }
+    std::cout << "\t" << STRINGS[2] << "N/A\n";
+    std::cout << "\t" << STRINGS[3] << "N/A\n";
+    std::cout << "\t" << STRINGS[4] << "N/A\n";
 
-    std::array<std::uint8_t, 256> arr2;
-    NextFitMemoryAllocator nfma(arr2);
-
-    double time2 = 0;
-
-    int i2=0;
-    while (i2<50000)
+    std::cout << "N=" << sizeN[2] << "\n";
+    for (int m=0; m<2; m++)
     {
-        auto b1 = nfma.allocate(1);
+        const std::size_t bytes_number = bytes_alloc;
+
+        std::array<void*, 50000> allocs;
+
+        auto addr = mem_allocs[4+m]->allocate(1);
+        allocs[0] = addr;
+        
+        int i1=0;
+        while (i1<(sizeN[2]-1) && addr != nullptr)
+        {  
+            mem_allocs[4+m]->allocate(bytes_number);
+            addr = mem_allocs[4+m]->allocate(bytes_number);
+
+            allocs[i1+1] = addr;
+
+            i1++;
+        }
+        if (i1 < (sizeN[2]-1))
+        {
+            std::cout << "nullptr at i1=" << i1 << "\n";
+        }
+
+        mem_allocs[4+m]->allocate(bytes_number);
+
+        int i2=0;
+        while (i2<sizeN[2])
+        {
+            mem_allocs[4+m]->deallocate(allocs[i2]);
+            i2++;
+        }
 
         auto start_time = std::chrono::high_resolution_clock::now();
-        nfma.deallocate(b1);
+        auto b = mem_allocs[4+m]->allocate(8+(7*NODESIZE_BS));
         auto end_time = std::chrono::high_resolution_clock::now();
+
+        EXPECT_EQ(b, nullptr);
+
+        double time = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
         
-        time2 += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
-
-        i2++;
+        std::cout << "\t" << STRINGS[m%5] << time/1000000 << "ms\n";
     }
-
-    std::cout << "FirstFit time:\t" << time1/1000000 << "ms\n";
-    std::cout << "NextFit time:\t" << time2/1000000 << "ms\n";
+    std::cout << "\t" << STRINGS[2] << "N/A\n";
+    std::cout << "\t" << STRINGS[3] << "N/A\n";
+    std::cout << "\t" << STRINGS[4] << "N/A\n";
 }
 
-TEST(Deallocation, MergePrev_1000Times)
+TEST(Deallocation, First_NTimes)
 {
-    std::array<std::uint8_t, 1000*(1+NODESIZE_FF)> arr1;
+    const std::size_t bytes_alloc = 1;
+    const std::size_t bytes_alloc_large = 64+(7*NODESIZE_BS);
+
+    const std::array<std::size_t, 3> sizeN = {1000, 10000, 50000};
+
+    std::array<std::uint8_t, 10*(bytes_alloc+NODESIZE_FF)> arr1;
     FirstFitMemoryAllocator ffma(arr1);
 
-    std::array<void*, 1000> allocs1;
-
-    auto addr = ffma.allocate(1);
-    allocs1[0] = addr;
-    
-    int i1=0;
-    while (i1<999 && addr != nullptr)
-    {
-        addr = ffma.allocate(1);
-        allocs1[i1+1] = addr;
-
-        i1++;
-    }
-    if (i1 < 999)
-    {
-        std::cout << "nullptr at i1=" << i1 << "\n";
-    }
-
-    double time1 = 0;
-
-    int i2=0;
-    while (i2<1000)
-    {
-        auto start_time1 = std::chrono::high_resolution_clock::now();
-        ffma.deallocate(allocs1[i2]);
-        auto end_time1 = std::chrono::high_resolution_clock::now();
-        
-        time1 += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time1 - start_time1).count();
-        
-        i2++;
-    }
-
-    std::array<std::uint8_t, 1000*(1+NODESIZE_FF)> arr2;
+    std::array<std::uint8_t, 10*(bytes_alloc+NODESIZE_FF)> arr2;
     NextFitMemoryAllocator nfma(arr2);
 
-    std::array<void*, 1000> allocs2;
+    std::array<std::uint8_t, 10*(bytes_alloc+NODESIZE_PA)> arr3;
+    PoolAllocationMemoryAllocator<8> pama(arr3);
 
-    auto addr2 = nfma.allocate(1);
-    allocs2[0] = addr2;
-    
-    int i3=0;
-    while (i3<999 && addr2 != nullptr)
+    std::array<std::uint8_t, 10*(bytes_alloc+NODESIZE_BS)> arr4;
+    BuddySystemMemoryAllocator<8> bsma(arr4);
+
+    std::array<std::uint8_t, 10*(bytes_alloc_large+NODESIZE_BS)> arr5;
+    BuddySystemMemoryAllocator<8> bsma_large(arr5);
+
+    std::array<MemoryAllocator*, 5> mem_allocs = {&ffma, &nfma, &pama, &bsma, &bsma_large};
+
+    for (int n=0; n<sizeN.size(); n++)
     {
-        addr2 = nfma.allocate(1);
-        allocs2[i3+1] = addr2;
+        std::cout << "N=" << sizeN[n] << "\n";
+        for (int m=0; m<mem_allocs.size(); m++)
+        {
+            std::size_t bytes_number = bytes_alloc;
+            if (m == 4)
+            {
+                bytes_number = bytes_alloc_large;
+            }
 
-        i3++;
+            double time = 0;
+
+            int i=0;
+            while (i<sizeN[n])
+            {
+                auto b = mem_allocs[m]->allocate(bytes_number);
+
+                auto start_time = std::chrono::high_resolution_clock::now();
+                mem_allocs[m]->deallocate(b);
+                auto end_time = std::chrono::high_resolution_clock::now();
+                
+                time += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
+
+                i++;
+            }
+
+            std::cout << "\t" << STRINGS[m] << time/1000000 << "ms\n";
+        }
     }
-    if (i3 < 999)
-    {
-        std::cout << "nullptr at i2=" << i2 << "\n";
-    }
-
-    double time2 = 0;
-
-    int i4=0;
-    while (i4<1000)
-    {
-        auto start_time1 = std::chrono::high_resolution_clock::now();
-        nfma.deallocate(allocs2[i4]);
-        auto end_time1 = std::chrono::high_resolution_clock::now();
-        
-        time2 += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time1 - start_time1).count();
-        
-        i4++;
-    }
-
-    std::cout << "FirstFit time:\t" << time1/1000000 << "ms\n";
-    std::cout << "NextFit time:\t" << time2/1000000 << "ms\n";
 }
 
-TEST(Deallocation, MergePrev_10000Times)
+TEST(Deallocation, MergePrev_NTimes)
 {
-    std::array<std::uint8_t, 10000*(1+NODESIZE_FF)> arr1;
-    FirstFitMemoryAllocator ffma(arr1);
+    const std::size_t bytes_alloc = 1;
+    const std::size_t bytes_alloc_large = 64+(7*NODESIZE_BS);
 
-    std::array<void*, 10000> allocs1;
-
-    auto addr = ffma.allocate(1);
-    allocs1[0] = addr;
+    const std::array<std::size_t, 3> sizeN = {1000, 10000, 50000};
     
-    int i1=0;
-    while (i1<9999 && addr != nullptr)
-    {
-        addr = ffma.allocate(1);
-        allocs1[i1+1] = addr;
+    std::array<std::uint8_t, 1000*(bytes_alloc+NODESIZE_FF)> arr1_1000;
+    FirstFitMemoryAllocator ffma_1000(arr1_1000);
 
-        i1++;
-    }
-    if (i1 < 9999)
-    {
-        std::cout << "nullptr at i1=" << i1 << "\n";
-    }
+    std::array<std::uint8_t, 1000*(bytes_alloc+NODESIZE_FF)> arr2_1000;
+    NextFitMemoryAllocator nfma_1000(arr2_1000);
 
-    double time1 = 0;
+    std::array<std::uint8_t, 1000*(8+NODESIZE_BS)> arr4_1000;
+    BuddySystemMemoryAllocator<8> bsma_1000(arr4_1000);
 
-    int i2=0;
-    while (i2<10000)
+    std::array<std::uint8_t, 1000*(bytes_alloc_large+NODESIZE_BS)> arr5_1000;
+    BuddySystemMemoryAllocator<8> bsma_large_1000(arr5_1000);
+
+    std::array<std::uint8_t, 10000*(bytes_alloc+NODESIZE_FF)> arr1_10000;
+    FirstFitMemoryAllocator ffma_10000(arr1_10000);
+
+    std::array<std::uint8_t, 10000*(bytes_alloc+NODESIZE_FF)> arr2_10000;
+    NextFitMemoryAllocator nfma_10000(arr2_10000);
+
+    std::array<std::uint8_t, 10000*(8+NODESIZE_BS)> arr4_10000;
+    BuddySystemMemoryAllocator<8> bsma_10000(arr4_10000);
+
+    std::array<std::uint8_t, 10000*(bytes_alloc_large+NODESIZE_BS)> arr5_10000;
+    BuddySystemMemoryAllocator<8> bsma_large_10000(arr5_10000);
+
+    std::array<std::uint8_t, 50000*(bytes_alloc+NODESIZE_FF)> arr1_50000;
+    FirstFitMemoryAllocator ffma_50000(arr1_50000);
+
+    std::array<std::uint8_t, 50000*(bytes_alloc+NODESIZE_FF)> arr2_50000;
+    NextFitMemoryAllocator nfma_50000(arr2_50000);
+
+    std::array<std::uint8_t, 50000*(8+NODESIZE_BS)> arr4_50000;
+    BuddySystemMemoryAllocator<8> bsma_50000(arr4_50000);
+
+    std::array<MemoryAllocator*, 14> mem_allocs = {
+        &ffma_1000, &nfma_1000, nullptr, &bsma_1000, &bsma_large_1000,
+        &ffma_10000, &nfma_10000, nullptr, &bsma_10000, &bsma_large_10000,
+        &ffma_50000, &nfma_50000, nullptr, &bsma_50000
+    };
+
+    std::cout << "N=" << sizeN[0] << "\n";
+    for (int m=0; m<5; m++)
     {
-        auto start_time1 = std::chrono::high_resolution_clock::now();
-        ffma.deallocate(allocs1[i2]);
-        auto end_time1 = std::chrono::high_resolution_clock::now();
+        std::size_t bytes_number = bytes_alloc;
+        if (m == 4)
+        {
+            bytes_number = bytes_alloc_large;
+        }
+        else if (m == 2)
+        {
+            std::cout << "\t" << STRINGS[2] << "N/A\n";
+            continue;
+        }
         
-        time1 += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time1 - start_time1).count();
+        std::array<void*, 1000> allocs;
+
+        auto addr = mem_allocs[m]->allocate(bytes_number);
+        allocs[0] = addr;
         
-        i2++;
-    }
+        int i1=0;
+        while (i1<(sizeN[0]-1) && addr != nullptr)
+        {
+            addr = mem_allocs[m]->allocate(bytes_number);
+            allocs[i1+1] = addr;
 
-    std::array<std::uint8_t, 10000*(1+NODESIZE_FF)> arr2;
-    NextFitMemoryAllocator nfma(arr2);
+            i1++;
+        }
+        if (i1 < (sizeN[0]-1))
+        {
+            std::cout << "nullptr at i1=" << i1 << "\n";
+        }
 
-    std::array<void*, 10000> allocs2;
+        double time = 0;
 
-    auto addr2 = nfma.allocate(1);
-    allocs2[0] = addr2;
-    
-    int i3=0;
-    while (i3<9999 && addr2 != nullptr)
-    {
-        addr2 = nfma.allocate(1);
-        allocs2[i3+1] = addr2;
-
-        i3++;
-    }
-    if (i3 < 9999)
-    {
-        std::cout << "nullptr at i2=" << i2 << "\n";
-    }
-
-    double time2 = 0;
-
-    int i4=0;
-    while (i4<10000)
-    {
-        auto start_time1 = std::chrono::high_resolution_clock::now();
-        nfma.deallocate(allocs2[i4]);
-        auto end_time1 = std::chrono::high_resolution_clock::now();
+        int i2=0;
+        while (i2<sizeN[0])
+        {
+            auto start_time = std::chrono::high_resolution_clock::now();
+            mem_allocs[m]->deallocate(allocs[i2]);
+            auto end_time = std::chrono::high_resolution_clock::now();
+            
+            time += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
+            
+            i2++;
+        }
         
-        time2 += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time1 - start_time1).count();
-        
-        i4++;
+        std::cout << "\t" << STRINGS[m%5] << time/1000000 << "ms\n";
     }
 
-    std::cout << "FirstFit time:\t" << time1/1000000 << "ms\n";
-    std::cout << "NextFit time:\t" << time2/1000000 << "ms\n";
+    std::cout << "N=" << sizeN[1] << "\n";
+    for (int m=0; m<5; m++)
+    {
+        std::size_t bytes_number = bytes_alloc;
+        if (m == 4)
+        {
+            bytes_number = bytes_alloc_large;
+        }
+        else if (m == 2)
+        {
+            std::cout << "\t" << STRINGS[2] << "N/A\n";
+            continue;
+        }
+        
+        std::array<void*, 10000> allocs;
+
+        auto addr = mem_allocs[5+m]->allocate(bytes_number);
+        allocs[0] = addr;
+        
+        int i1=0;
+        while (i1<(sizeN[1]-1) && addr != nullptr)
+        {
+            addr = mem_allocs[5+m]->allocate(bytes_number);
+            allocs[i1+1] = addr;
+
+            i1++;
+        }
+        if (i1 < (sizeN[1]-1))
+        {
+            std::cout << "nullptr at i1=" << i1 << "\n";
+        }
+
+        double time = 0;
+
+        int i2=0;
+        while (i2<sizeN[1])
+        {
+            auto start_time = std::chrono::high_resolution_clock::now();
+            mem_allocs[5+m]->deallocate(allocs[i2]);
+            auto end_time = std::chrono::high_resolution_clock::now();
+            
+            time += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
+            
+            i2++;
+        }
+        
+        std::cout << "\t" << STRINGS[m%5] << time/1000000 << "ms\n";
+    }
+
+    std::cout << "N=" << sizeN[2] << "\n";
+    for (int m=0; m<5; m++)
+    {
+        const std::size_t bytes_number = bytes_alloc;
+
+        if (m == 2)
+        {
+            std::cout << "\t" << STRINGS[m] << "N/A\n";
+            continue;
+        }
+        else if (m == 4)
+        {
+            std::cout << "\t" << STRINGS[m] << "Buffer too large\n";
+            break;
+        }
+        
+        std::array<void*, 50000> allocs;
+
+        auto addr = mem_allocs[10+m]->allocate(bytes_number);
+        allocs[0] = addr;
+        
+        int i1=0;
+        while (i1<(sizeN[2]-1) && addr != nullptr)
+        {
+            addr = mem_allocs[10+m]->allocate(bytes_number);
+            allocs[i1+1] = addr;
+
+            i1++;
+        }
+        if (i1 < (sizeN[2]-1))
+        {
+            std::cout << "nullptr at i1=" << i1 << "\n";
+        }
+
+        double time = 0;
+
+        int i2=0;
+        while (i2<sizeN[2])
+        {
+            auto start_time = std::chrono::high_resolution_clock::now();
+            mem_allocs[10+m]->deallocate(allocs[i2]);
+            auto end_time = std::chrono::high_resolution_clock::now();
+            
+            time += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
+            
+            i2++;
+        }
+        
+        std::cout << "\t" << STRINGS[m%5] << time/1000000 << "ms\n";
+    }
 }
 
-TEST(Deallocation, MergePrev_50000Times)
+TEST(Deallocation, MergeNext_NTimes)
 {
-    std::array<std::uint8_t, 50000*(1+NODESIZE_FF)> arr1;
-    FirstFitMemoryAllocator ffma(arr1);
+    const std::size_t bytes_alloc = 1;
+    const std::size_t bytes_alloc_large = 64+(7*NODESIZE_BS);
 
-    std::array<void*, 50000> allocs1;
-
-    auto addr = ffma.allocate(1);
-    allocs1[0] = addr;
+    const std::array<std::size_t, 3> sizeN = {1000, 10000, 50000};
     
-    int i1=0;
-    while (i1<49999 && addr != nullptr)
-    {
-        addr = ffma.allocate(1);
-        allocs1[i1+1] = addr;
+    std::array<std::uint8_t, 1000*(bytes_alloc+NODESIZE_FF)> arr1_1000;
+    FirstFitMemoryAllocator ffma_1000(arr1_1000);
 
-        i1++;
-    }
-    if (i1 < 49999)
-    {
-        std::cout << "nullptr at i1=" << i1 << "\n";
-    }
+    std::array<std::uint8_t, 1000*(bytes_alloc+NODESIZE_FF)> arr2_1000;
+    NextFitMemoryAllocator nfma_1000(arr2_1000);
 
-    double time1 = 0;
+    std::array<std::uint8_t, 1000*(8+NODESIZE_BS)> arr4_1000;
+    BuddySystemMemoryAllocator<8> bsma_1000(arr4_1000);
 
-    int i2=0;
-    while (i2<50000)
+    std::array<std::uint8_t, 1000*(bytes_alloc_large+NODESIZE_BS)> arr5_1000;
+    BuddySystemMemoryAllocator<8> bsma_large_1000(arr5_1000);
+
+    std::array<std::uint8_t, 10000*(bytes_alloc+NODESIZE_FF)> arr1_10000;
+    FirstFitMemoryAllocator ffma_10000(arr1_10000);
+
+    std::array<std::uint8_t, 10000*(bytes_alloc+NODESIZE_FF)> arr2_10000;
+    NextFitMemoryAllocator nfma_10000(arr2_10000);
+
+    std::array<std::uint8_t, 10000*(8+NODESIZE_BS)> arr4_10000;
+    BuddySystemMemoryAllocator<8> bsma_10000(arr4_10000);
+
+    std::array<std::uint8_t, 10000*(bytes_alloc_large+NODESIZE_BS)> arr5_10000;
+    BuddySystemMemoryAllocator<8> bsma_large_10000(arr5_10000);
+
+    std::array<std::uint8_t, 50000*(bytes_alloc+NODESIZE_FF)> arr1_50000;
+    FirstFitMemoryAllocator ffma_50000(arr1_50000);
+
+    std::array<std::uint8_t, 50000*(bytes_alloc+NODESIZE_FF)> arr2_50000;
+    NextFitMemoryAllocator nfma_50000(arr2_50000);
+
+    std::array<std::uint8_t, 50000*(8+NODESIZE_BS)> arr4_50000;
+    BuddySystemMemoryAllocator<8> bsma_50000(arr4_50000);
+
+    std::array<MemoryAllocator*, 14> mem_allocs = {
+        &ffma_1000, &nfma_1000, nullptr, &bsma_1000, &bsma_large_1000,
+        &ffma_10000, &nfma_10000, nullptr, &bsma_10000, &bsma_large_10000,
+        &ffma_50000, &nfma_50000, nullptr, &bsma_50000
+    };
+
+    std::cout << "N=" << sizeN[0] << "\n";
+    for (int m=0; m<5; m++)
     {
-        auto start_time1 = std::chrono::high_resolution_clock::now();
-        ffma.deallocate(allocs1[i2]);
-        auto end_time1 = std::chrono::high_resolution_clock::now();
+        std::size_t bytes_number = bytes_alloc;
+        if (m == 4)
+        {
+            bytes_number = bytes_alloc_large;
+        }
+        else if (m == 2)
+        {
+            std::cout << "\t" << STRINGS[2] << "N/A\n";
+            continue;
+        }
         
-        time1 += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time1 - start_time1).count();
+        std::array<void*, 1000> allocs;
+
+        auto addr = mem_allocs[m]->allocate(bytes_number);
+        allocs[0] = addr;
         
-        i2++;
-    }
+        int i1=0;
+        while (i1<(sizeN[0]-1) && addr != nullptr)
+        {
+            addr = mem_allocs[m]->allocate(bytes_number);
+            allocs[i1+1] = addr;
 
-    std::array<std::uint8_t, 50000*(1+NODESIZE_FF)> arr2;
-    NextFitMemoryAllocator nfma(arr2);
+            i1++;
+        }
+        if (i1 < (sizeN[0]-1))
+        {
+            std::cout << "nullptr at i1=" << i1 << "\n";
+        }
 
-    std::array<void*, 50000> allocs2;
+        double time = 0;
 
-    auto addr2 = nfma.allocate(1);
-    allocs2[0] = addr2;
-    
-    int i3=0;
-    while (i3<49999 && addr2 != nullptr)
-    {
-        addr2 = nfma.allocate(1);
-        allocs2[i3+1] = addr2;
-
-        i3++;
-    }
-    if (i3 < 49999)
-    {
-        std::cout << "nullptr at i2=" << i2 << "\n";
-    }
-
-    double time2 = 0;
-
-    int i4=0;
-    while (i4<50000)
-    {
-        auto start_time1 = std::chrono::high_resolution_clock::now();
-        nfma.deallocate(allocs2[i4]);
-        auto end_time1 = std::chrono::high_resolution_clock::now();
+        int i2=0;
+        while (i2<sizeN[0])
+        {
+            auto start_time = std::chrono::high_resolution_clock::now();
+            mem_allocs[m]->deallocate(allocs[sizeN[0]-1-i2]);
+            auto end_time = std::chrono::high_resolution_clock::now();
+            
+            time += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
+            
+            i2++;
+        }
         
-        time2 += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time1 - start_time1).count();
-        
-        i4++;
+        std::cout << "\t" << STRINGS[m%5] << time/1000000 << "ms\n";
     }
 
-    std::cout << "FirstFit time:\t" << time1/1000000 << "ms\n";
-    std::cout << "NextFit time:\t" << time2/1000000 << "ms\n";
+    std::cout << "N=" << sizeN[1] << "\n";
+    for (int m=0; m<5; m++)
+    {
+        std::size_t bytes_number = bytes_alloc;
+        if (m == 4)
+        {
+            bytes_number = bytes_alloc_large;
+        }
+        else if (m == 2)
+        {
+            std::cout << "\t" << STRINGS[2] << "N/A\n";
+            continue;
+        }
+        
+        std::array<void*, 10000> allocs;
+
+        auto addr = mem_allocs[5+m]->allocate(bytes_number);
+        allocs[0] = addr;
+        
+        int i1=0;
+        while (i1<(sizeN[1]-1) && addr != nullptr)
+        {
+            addr = mem_allocs[5+m]->allocate(bytes_number);
+            allocs[i1+1] = addr;
+
+            i1++;
+        }
+        if (i1 < (sizeN[1]-1))
+        {
+            std::cout << "nullptr at i1=" << i1 << "\n";
+        }
+
+        double time = 0;
+
+        int i2=0;
+        while (i2<sizeN[1])
+        {
+            auto start_time = std::chrono::high_resolution_clock::now();
+            mem_allocs[5+m]->deallocate(allocs[sizeN[1]-1-i2]);
+            auto end_time = std::chrono::high_resolution_clock::now();
+            
+            time += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
+            
+            i2++;
+        }
+        
+        std::cout << "\t" << STRINGS[m%5] << time/1000000 << "ms\n";
+    }
+
+    std::cout << "N=" << sizeN[2] << "\n";
+    for (int m=0; m<5; m++)
+    {
+        const std::size_t bytes_number = bytes_alloc;
+
+        if (m == 2)
+        {
+            std::cout << "\t" << STRINGS[m] << "N/A\n";
+            continue;
+        }
+        else if (m == 4)
+        {
+            std::cout << "\t" << STRINGS[m] << "Buffer too large\n";
+            break;
+        }
+        
+        std::array<void*, 50000> allocs;
+
+        auto addr = mem_allocs[10+m]->allocate(bytes_number);
+        allocs[0] = addr;
+        
+        int i1=0;
+        while (i1<(sizeN[2]-1) && addr != nullptr)
+        {
+            addr = mem_allocs[10+m]->allocate(bytes_number);
+            allocs[i1+1] = addr;
+
+            i1++;
+        }
+        if (i1 < (sizeN[2]-1))
+        {
+            std::cout << "nullptr at i1=" << i1 << "\n";
+        }
+
+        double time = 0;
+
+        int i2=0;
+        while (i2<sizeN[2])
+        {
+            auto start_time = std::chrono::high_resolution_clock::now();
+            mem_allocs[10+m]->deallocate(allocs[sizeN[2]-1-i2]);
+            auto end_time = std::chrono::high_resolution_clock::now();
+            
+            time += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
+            
+            i2++;
+        }
+        
+        std::cout << "\t" << STRINGS[m%5] << time/1000000 << "ms\n";
+    }
 }
 
-TEST(Deallocation, MergeNext_1000Times)
+TEST(Deallocation, MergePrevNext_NTimes)
 {
-    std::array<std::uint8_t, 1000*(1+NODESIZE_FF)> arr1;
-    FirstFitMemoryAllocator ffma(arr1);
+    const std::size_t bytes_alloc = 1;
+    const std::size_t bytes_alloc_large = 64+(7*NODESIZE_BS);
 
-    std::array<void*, 1000> allocs1;
-
-    auto addr1 = ffma.allocate(1);
-    allocs1[0] = addr1;
+    const std::array<std::size_t, 3> sizeN = {1000, 10000, 50000};
     
-    int i1=0;
-    while (i1<999 && addr1 != nullptr)
-    {
-        addr1 = ffma.allocate(1);
-        allocs1[i1+1] = addr1;
+    std::array<std::uint8_t, 2001*(bytes_alloc+NODESIZE_FF)> arr1_1000;
+    FirstFitMemoryAllocator ffma_1000(arr1_1000);
 
-        i1++;
-    }
-    if (i1 < 999)
-    {
-        std::cout << "nullptr at i1=" << i1 << "\n";
-    }
+    std::array<std::uint8_t, 2001*(bytes_alloc+NODESIZE_FF)> arr2_1000;
+    NextFitMemoryAllocator nfma_1000(arr2_1000);
 
-    double time1 = 0;
+    std::array<std::uint8_t, 2001*(8+NODESIZE_BS)> arr4_1000;
+    BuddySystemMemoryAllocator<8> bsma_1000(arr4_1000);
 
-    int i2=0;
-    while (i2<1000)
+    std::array<std::uint8_t, 2001*(bytes_alloc_large+NODESIZE_BS)> arr5_1000;
+    BuddySystemMemoryAllocator<8> bsma_large_1000(arr5_1000);
+
+    std::array<std::uint8_t, 20001*(bytes_alloc+NODESIZE_FF)> arr1_10000;
+    FirstFitMemoryAllocator ffma_10000(arr1_10000);
+
+    std::array<std::uint8_t, 20001*(bytes_alloc+NODESIZE_FF)> arr2_10000;
+    NextFitMemoryAllocator nfma_10000(arr2_10000);
+
+    std::array<std::uint8_t, 20001*(8+NODESIZE_BS)> arr4_10000;
+    BuddySystemMemoryAllocator<8> bsma_10000(arr4_10000);
+
+    std::array<std::uint8_t, 100001*(bytes_alloc+NODESIZE_FF)> arr1_50000;
+    FirstFitMemoryAllocator ffma_50000(arr1_50000);
+
+    std::array<std::uint8_t, 100001*(bytes_alloc+NODESIZE_FF)> arr2_50000;
+    NextFitMemoryAllocator nfma_50000(arr2_50000);
+
+    std::array<MemoryAllocator*, 12> mem_allocs = {
+        &ffma_1000, &nfma_1000, nullptr, &bsma_1000, &bsma_large_1000,
+        &ffma_10000, &nfma_10000, nullptr, &bsma_10000, nullptr,
+        &ffma_50000, &nfma_50000
+    };
+
+    std::cout << "N=" << sizeN[0] << "\n";
+    for (int m=0; m<5; m++)
     {
-        auto start_time1 = std::chrono::high_resolution_clock::now();
-        ffma.deallocate(allocs1[999-i2]);
-        auto end_time1 = std::chrono::high_resolution_clock::now();
+        std::size_t bytes_number = bytes_alloc;
+        if (m == 4)
+        {
+            bytes_number = bytes_alloc_large;
+        }
+        else if (m == 2)
+        {
+            std::cout << "\t" << STRINGS[2] << "N/A\n";
+            continue;
+        }
         
-        time1 += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time1 - start_time1).count();
+        std::array<void*, 1001> allocs1;
+        std::array<void*, 1000> allocs2;
+
+        auto addr = mem_allocs[m]->allocate(1);
+        allocs1[0] = addr;
         
-        i2++;
-    }
+        int i1=0;
+        while (i1<sizeN[0] && addr != nullptr)
+        {
+            addr = mem_allocs[m]->allocate(bytes_number);
+            allocs2[i1] = addr;
 
-    std::array<std::uint8_t, 1000*(1+NODESIZE_FF)> arr2;
-    NextFitMemoryAllocator nfma(arr2);
+            addr = mem_allocs[m]->allocate(bytes_number);
+            allocs1[i1+1] = addr;
 
-    std::array<void*, 1000> allocs2;
+            i1++;
+        }
+        if (i1 < sizeN[0])
+        {
+            std::cout << "nullptr at i1=" << i1 << "\n";
+        }
 
-    auto addr2 = nfma.allocate(1);
-    allocs2[0] = addr2;
-    
-    int i3=0;
-    while (i3<999 && addr2 != nullptr)
-    {
-        addr2 = ffma.allocate(1);
-        allocs2[i3+1] = addr2;
+        double time = 0;
 
-        i3++;
-    }
-    if (i3 < 999)
-    {
-        std::cout << "nullptr at i3=" << i3 << "\n";
-    }
+        int i2=0;
+        while (i2<sizeN[0])
+        {
+            mem_allocs[m]->deallocate(allocs1[i2]);
+            i2++;
+        }
 
-    double time2 = 0;
-
-    int i4=0;
-    while (i4<1000)
-    {
-        auto start_time1 = std::chrono::high_resolution_clock::now();
-        nfma.deallocate(allocs2[999-i4]);
-        auto end_time1 = std::chrono::high_resolution_clock::now();
+        int i3=0;
+        while (i3<sizeN[0])
+        {
+            auto start_time = std::chrono::high_resolution_clock::now();
+            mem_allocs[m]->deallocate(allocs2[i3]);
+            auto end_time = std::chrono::high_resolution_clock::now();
+            
+            time += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
+            
+            i3++;
+        }
         
-        time2 += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time1 - start_time1).count();
+        std::cout << "\t" << STRINGS[m%5] << time/1000000 << "ms\n";
+    }
+
+    std::cout << "N=" << sizeN[1] << "\n";
+    for (int m=0; m<5; m++)
+    {
+        const std::size_t bytes_number = bytes_alloc;
+
+        if (m == 4)
+        {
+            std::cout << "\t" << STRINGS[4] << "Buffer too large\n";
+            break;
+        }
+        else if (m == 2)
+        {
+            std::cout << "\t" << STRINGS[2] << "N/A\n";
+            continue;
+        }
         
-        i4++;
-    }
+        std::array<void*, 10001> allocs1;
+        std::array<void*, 10000> allocs2;
 
-    std::cout << "FirstFit time:\t" << time1/1000000 << "ms\n";
-    std::cout << "NextFit time:\t" << time2/1000000 << "ms\n";
-}
-
-TEST(Deallocation, MergeNext_10000Times)
-{
-    std::array<std::uint8_t, 10000*(1+NODESIZE_FF)> arr1;
-    FirstFitMemoryAllocator ffma(arr1);
-
-    std::array<void*, 10000> allocs1;
-
-    auto addr1 = ffma.allocate(1);
-    allocs1[0] = addr1;
-    
-    int i1=0;
-    while (i1<9999 && addr1 != nullptr)
-    {
-        addr1 = ffma.allocate(1);
-        allocs1[i1+1] = addr1;
-
-        i1++;
-    }
-    if (i1 < 9999)
-    {
-        std::cout << "nullptr at i1=" << i1 << "\n";
-    }
-
-    double time1 = 0;
-
-    int i2=0;
-    while (i2<10000)
-    {
-        auto start_time1 = std::chrono::high_resolution_clock::now();
-        ffma.deallocate(allocs1[9999-i2]);
-        auto end_time1 = std::chrono::high_resolution_clock::now();
+        auto addr = mem_allocs[5+m]->allocate(1);
+        allocs1[0] = addr;
         
-        time1 += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time1 - start_time1).count();
+        int i1=0;
+        while (i1<sizeN[1] && addr != nullptr)
+        {
+            addr = mem_allocs[5+m]->allocate(bytes_number);
+            allocs2[i1] = addr;
+
+            addr = mem_allocs[5+m]->allocate(bytes_number);
+            allocs1[i1+1] = addr;
+
+            i1++;
+        }
+        if (i1 < sizeN[1])
+        {
+            std::cout << "nullptr at i1=" << i1 << "\n";
+        }
+
+        double time = 0;
+
+        int i2=0;
+        while (i2<sizeN[1])
+        {
+            mem_allocs[5+m]->deallocate(allocs1[i2]);
+            i2++;
+        }
+
+        int i3=0;
+        while (i3<sizeN[1])
+        {
+            auto start_time = std::chrono::high_resolution_clock::now();
+            mem_allocs[5+m]->deallocate(allocs2[i3]);
+            auto end_time = std::chrono::high_resolution_clock::now();
+            
+            time += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
+            
+            i3++;
+        }
         
-        i2++;
+        std::cout << "\t" << STRINGS[m%5] << time/1000000 << "ms\n";
     }
 
-    std::array<std::uint8_t, 10000*(1+NODESIZE_FF)> arr2;
-    NextFitMemoryAllocator nfma(arr2);
-
-    std::array<void*, 10000> allocs2;
-
-    auto addr2 = nfma.allocate(1);
-    allocs2[0] = addr2;
-    
-    int i3=0;
-    while (i3<9999 && addr2 != nullptr)
+    std::cout << "N=" << sizeN[2] << "\n";
+    for (int m=0; m<2; m++)
     {
-        addr2 = ffma.allocate(1);
-        allocs2[i3+1] = addr2;
-
-        i3++;
-    }
-    if (i3 < 9999)
-    {
-        std::cout << "nullptr at i3=" << i3 << "\n";
-    }
-
-    double time2 = 0;
-
-    int i4=0;
-    while (i4<10000)
-    {
-        auto start_time1 = std::chrono::high_resolution_clock::now();
-        nfma.deallocate(allocs2[9999-i4]);
-        auto end_time1 = std::chrono::high_resolution_clock::now();
+        const std::size_t bytes_number = bytes_alloc;
         
-        time2 += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time1 - start_time1).count();
+        std::array<void*, 50001> allocs1;
+        std::array<void*, 50000> allocs2;
+
+        auto addr = mem_allocs[10+m]->allocate(1);
+        allocs1[0] = addr;
         
-        i4++;
-    }
+        int i1=0;
+        while (i1<sizeN[2] && addr != nullptr)
+        {
+            addr = mem_allocs[10+m]->allocate(bytes_number);
+            allocs2[i1] = addr;
 
-    std::cout << "FirstFit time:\t" << time1/1000000 << "ms\n";
-    std::cout << "NextFit time:\t" << time2/1000000 << "ms\n";
-}
+            addr = mem_allocs[10+m]->allocate(bytes_number);
+            allocs1[i1+1] = addr;
 
-TEST(Deallocation, MergeNext_50000Times)
-{
-    std::array<std::uint8_t, 50000*(1+NODESIZE_FF)> arr1;
-    FirstFitMemoryAllocator ffma(arr1);
+            i1++;
+        }
+        if (i1 < sizeN[2])
+        {
+            std::cout << "nullptr at i1=" << i1 << "\n";
+        }
 
-    std::array<void*, 50000> allocs1;
+        double time = 0;
 
-    auto addr1 = ffma.allocate(1);
-    allocs1[0] = addr1;
-    
-    int i1=0;
-    while (i1<49999 && addr1 != nullptr)
-    {
-        addr1 = ffma.allocate(1);
-        allocs1[i1+1] = addr1;
+        int i2=0;
+        while (i2<sizeN[2])
+        {
+            mem_allocs[10+m]->deallocate(allocs1[i2]);
+            i2++;
+        }
 
-        i1++;
-    }
-    if (i1 < 49999)
-    {
-        std::cout << "nullptr at i1=" << i1 << "\n";
-    }
-
-    double time1 = 0;
-
-    int i2=0;
-    while (i2<50000)
-    {
-        auto start_time1 = std::chrono::high_resolution_clock::now();
-        ffma.deallocate(allocs1[49999-i2]);
-        auto end_time1 = std::chrono::high_resolution_clock::now();
+        int i3=0;
+        while (i3<sizeN[2])
+        {
+            auto start_time = std::chrono::high_resolution_clock::now();
+            mem_allocs[10+m]->deallocate(allocs2[i3]);
+            auto end_time = std::chrono::high_resolution_clock::now();
+            
+            time += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
+            
+            i3++;
+        }
         
-        time1 += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time1 - start_time1).count();
-        
-        i2++;
+        std::cout << "\t" << STRINGS[m%5] << time/1000000 << "ms\n";
     }
-
-    std::array<std::uint8_t, 50000*(1+NODESIZE_FF)> arr2;
-    NextFitMemoryAllocator nfma(arr2);
-
-    std::array<void*, 50000> allocs2;
-
-    auto addr2 = nfma.allocate(1);
-    allocs2[0] = addr2;
-    
-    int i3=0;
-    while (i3<49999 && addr2 != nullptr)
-    {
-        addr2 = ffma.allocate(1);
-        allocs2[i3+1] = addr2;
-
-        i3++;
-    }
-    if (i3 < 49999)
-    {
-        std::cout << "nullptr at i3=" << i3 << "\n";
-    }
-
-    double time2 = 0;
-
-    int i4=0;
-    while (i4<50000)
-    {
-        auto start_time1 = std::chrono::high_resolution_clock::now();
-        nfma.deallocate(allocs2[49999-i4]);
-        auto end_time1 = std::chrono::high_resolution_clock::now();
-        
-        time2 += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time1 - start_time1).count();
-        
-        i4++;
-    }
-
-    std::cout << "FirstFit time:\t" << time1/1000000 << "ms\n";
-    std::cout << "NextFit time:\t" << time2/1000000 << "ms\n";
-}
-
-TEST(Deallocation, MergePrevNext_1000Times)
-{
-    std::array<std::uint8_t, 2001*(1+NODESIZE_FF)> arr1;
-    FirstFitMemoryAllocator ffma(arr1);
-
-    std::array<void*, 1001> allocs11;
-    std::array<void*, 1000> allocs12;
-
-    auto addr = ffma.allocate(1);
-    allocs11[0] = addr;
-    
-    int i1=0;
-    while (i1<1000 && addr != nullptr)
-    {
-        addr = ffma.allocate(1);
-        allocs12[i1] = addr;
-
-        addr = ffma.allocate(1);
-        allocs11[i1+1] = addr;
-
-        i1++;
-    }
-    if (i1 < 1000)
-    {
-        std::cout << "nullptr at i1=" << i1 << "\n";
-    }
-
-    double time1 = 0;
-
-    int i2=0;
-    while (i2<1000)
-    {
-        ffma.deallocate(allocs11[i2]);
-        i2++;
-    }
-
-    int i3=0;
-    while (i3<1000)
-    {
-        auto start_time1 = std::chrono::high_resolution_clock::now();
-        ffma.deallocate(allocs12[i3]);
-        auto end_time1 = std::chrono::high_resolution_clock::now();
-        
-        time1 += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time1 - start_time1).count();
-        
-        i3++;
-    }
-
-    std::array<std::uint8_t, 2001*(1+NODESIZE_FF)> arr2;
-    NextFitMemoryAllocator nfma(arr2);
-
-    std::array<void*, 1001> allocs21;
-    std::array<void*, 1000> allocs22;
-
-    auto addr2 = nfma.allocate(1);
-    allocs21[0] = addr2;
-    
-    int i4=0;
-    while (i4<1000 && addr2 != nullptr)
-    {
-        addr2 = nfma.allocate(1);
-        allocs22[i4] = addr2;
-
-        addr2 = ffma.allocate(1);
-        allocs21[i4+1] = addr2;
-
-        i4++;
-    }
-    if (i4 < 1000)
-    {
-        std::cout << "nullptr at i4=" << i4 << "\n";
-    }
-
-    double time2 = 0;
-
-    int i5=0;
-    while (i5<1000)
-    {
-        nfma.deallocate(allocs21[i5]);
-        i5++;
-    }
-
-    int i6=0;
-    while (i6<1000)
-    {
-        auto start_time1 = std::chrono::high_resolution_clock::now();
-        nfma.deallocate(allocs22[i6]);
-        auto end_time1 = std::chrono::high_resolution_clock::now();
-        
-        time2 += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time1 - start_time1).count();
-        
-        i6++;
-    }
-
-    std::cout << "FirstFit time:\t" << time1/1000000 << "ms\n";
-    std::cout << "NextFit time:\t" << time2/1000000 << "ms\n";
-}
-
-TEST(Deallocation, MergePrevNext_10000Times)
-{
-    std::array<std::uint8_t, 20001*(1+NODESIZE_FF)> arr1;
-    FirstFitMemoryAllocator ffma(arr1);
-
-    std::array<void*, 10001> allocs11;
-    std::array<void*, 10000> allocs12;
-
-    auto addr = ffma.allocate(1);
-    allocs11[0] = addr;
-    
-    int i1=0;
-    while (i1<10000 && addr != nullptr)
-    {
-        addr = ffma.allocate(1);
-        allocs12[i1] = addr;
-
-        addr = ffma.allocate(1);
-        allocs11[i1+1] = addr;
-
-        i1++;
-    }
-    if (i1 < 10000)
-    {
-        std::cout << "nullptr at i1=" << i1 << "\n";
-    }
-
-    double time1 = 0;
-
-    int i2=0;
-    while (i2<10000)
-    {
-        ffma.deallocate(allocs11[i2]);
-        i2++;
-    }
-
-    int i3=0;
-    while (i3<10000)
-    {
-        auto start_time1 = std::chrono::high_resolution_clock::now();
-        ffma.deallocate(allocs12[i3]);
-        auto end_time1 = std::chrono::high_resolution_clock::now();
-        
-        time1 += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time1 - start_time1).count();
-        
-        i3++;
-    }
-
-    std::array<std::uint8_t, 20001*(1+NODESIZE_FF)> arr2;
-    NextFitMemoryAllocator nfma(arr2);
-
-    std::array<void*, 10001> allocs21;
-    std::array<void*, 10000> allocs22;
-
-    auto addr2 = nfma.allocate(1);
-    allocs21[0] = addr2;
-    
-    int i4=0;
-    while (i4<10000 && addr2 != nullptr)
-    {
-        addr2 = nfma.allocate(1);
-        allocs22[i4] = addr2;
-
-        addr2 = ffma.allocate(1);
-        allocs21[i4+1] = addr2;
-
-        i4++;
-    }
-    if (i4 < 10000)
-    {
-        std::cout << "nullptr at i4=" << i4 << "\n";
-    }
-
-    double time2 = 0;
-
-    int i5=0;
-    while (i5<10000)
-    {
-        nfma.deallocate(allocs21[i5]);
-        i5++;
-    }
-
-    int i6=0;
-    while (i6<10000)
-    {
-        auto start_time1 = std::chrono::high_resolution_clock::now();
-        nfma.deallocate(allocs22[i6]);
-        auto end_time1 = std::chrono::high_resolution_clock::now();
-        
-        time2 += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time1 - start_time1).count();
-        
-        i6++;
-    }
-
-    std::cout << "FirstFit time:\t" << time1/1000000 << "ms\n";
-    std::cout << "NextFit time:\t" << time2/1000000 << "ms\n";
-}
-
-TEST(Deallocation, MergePrevNext_50000Times)
-{
-    std::array<std::uint8_t, 100001*(1+NODESIZE_FF)> arr1;
-    FirstFitMemoryAllocator ffma(arr1);
-
-    std::array<void*, 50001> allocs11;
-    std::array<void*, 50000> allocs12;
-
-    auto addr = ffma.allocate(1);
-    allocs11[0] = addr;
-    
-    int i1=0;
-    while (i1<50000 && addr != nullptr)
-    {
-        addr = ffma.allocate(1);
-        allocs12[i1] = addr;
-
-        addr = ffma.allocate(1);
-        allocs11[i1+1] = addr;
-
-        i1++;
-    }
-    if (i1 < 50000)
-    {
-        std::cout << "nullptr at i1=" << i1 << "\n";
-    }
-
-    double time1 = 0;
-
-    int i2=0;
-    while (i2<50000)
-    {
-        ffma.deallocate(allocs11[i2]);
-        i2++;
-    }
-
-    int i3=0;
-    while (i3<50000)
-    {
-        auto start_time1 = std::chrono::high_resolution_clock::now();
-        ffma.deallocate(allocs12[i3]);
-        auto end_time1 = std::chrono::high_resolution_clock::now();
-        
-        time1 += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time1 - start_time1).count();
-        
-        i3++;
-    }
-
-    std::array<std::uint8_t, 100001*(1+NODESIZE_FF)> arr2;
-    NextFitMemoryAllocator nfma(arr2);
-
-    std::array<void*, 50001> allocs21;
-    std::array<void*, 50000> allocs22;
-
-    auto addr2 = nfma.allocate(1);
-    allocs21[0] = addr2;
-    
-    int i4=0;
-    while (i4<50000 && addr2 != nullptr)
-    {
-        addr2 = nfma.allocate(1);
-        allocs22[i4] = addr2;
-
-        addr2 = ffma.allocate(1);
-        allocs21[i4+1] = addr2;
-
-        i4++;
-    }
-    if (i4 < 50000)
-    {
-        std::cout << "nullptr at i4=" << i4 << "\n";
-    }
-
-    double time2 = 0;
-
-    int i5=0;
-    while (i5<50000)
-    {
-        nfma.deallocate(allocs21[i5]);
-        i5++;
-    }
-
-    int i6=0;
-    while (i6<50000)
-    {
-        auto start_time1 = std::chrono::high_resolution_clock::now();
-        nfma.deallocate(allocs22[i6]);
-        auto end_time1 = std::chrono::high_resolution_clock::now();
-        
-        time2 += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time1 - start_time1).count();
-        
-        i6++;
-    }
-
-    std::cout << "FirstFit time:\t" << time1/1000000 << "ms\n";
-    std::cout << "NextFit time:\t" << time2/1000000 << "ms\n";
+    std::cout << "\t" << STRINGS[2] << "N/A\n";
+    std::cout << "\t" << STRINGS[3] << "Buffer too large\n";
+    std::cout << "\t" << STRINGS[4] << "Buffer too large\n";
 }

@@ -168,6 +168,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named performance_tests2
+
+# Build rule for target.
+performance_tests2: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 performance_tests2
+.PHONY : performance_tests2
+
+# fast build rule for target.
+performance_tests2/fast:
+	$(MAKE) -f CMakeFiles/performance_tests2.dir/build.make CMakeFiles/performance_tests2.dir/build
+.PHONY : performance_tests2/fast
+
+#=============================================================================
 # Target rules for targets named firstfit_test
 
 # Build rule for target.
@@ -459,6 +472,33 @@ test/performance_tests.cpp.s:
 	$(MAKE) -f CMakeFiles/performance_tests.dir/build.make CMakeFiles/performance_tests.dir/test/performance_tests.cpp.s
 .PHONY : test/performance_tests.cpp.s
 
+test/performance_tests2.o: test/performance_tests2.cpp.o
+
+.PHONY : test/performance_tests2.o
+
+# target to build an object file
+test/performance_tests2.cpp.o:
+	$(MAKE) -f CMakeFiles/performance_tests2.dir/build.make CMakeFiles/performance_tests2.dir/test/performance_tests2.cpp.o
+.PHONY : test/performance_tests2.cpp.o
+
+test/performance_tests2.i: test/performance_tests2.cpp.i
+
+.PHONY : test/performance_tests2.i
+
+# target to preprocess a source file
+test/performance_tests2.cpp.i:
+	$(MAKE) -f CMakeFiles/performance_tests2.dir/build.make CMakeFiles/performance_tests2.dir/test/performance_tests2.cpp.i
+.PHONY : test/performance_tests2.cpp.i
+
+test/performance_tests2.s: test/performance_tests2.cpp.s
+
+.PHONY : test/performance_tests2.s
+
+# target to generate assembly for a file
+test/performance_tests2.cpp.s:
+	$(MAKE) -f CMakeFiles/performance_tests2.dir/build.make CMakeFiles/performance_tests2.dir/test/performance_tests2.cpp.s
+.PHONY : test/performance_tests2.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -470,6 +510,7 @@ help:
 	@echo "... edit_cache"
 	@echo "... install/local"
 	@echo "... test"
+	@echo "... performance_tests2"
 	@echo "... firstfit_test"
 	@echo "... firstfit_freelist_test"
 	@echo "... list_install_components"
@@ -500,6 +541,9 @@ help:
 	@echo "... test/performance_tests.o"
 	@echo "... test/performance_tests.i"
 	@echo "... test/performance_tests.s"
+	@echo "... test/performance_tests2.o"
+	@echo "... test/performance_tests2.i"
+	@echo "... test/performance_tests2.s"
 .PHONY : help
 
 
