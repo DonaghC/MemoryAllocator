@@ -69,6 +69,13 @@ public:
         node_count--;
         return node;        
     }
+    
+    // Reset this free list back to it's initialisation state.
+    void reset()
+    {
+        this->node_count = 0;
+        this->head_node = nullptr;
+    }
 
     // Returns number of nodes in free list.
     std::size_t count() const

@@ -181,6 +181,70 @@ public:
         }
     }
 
+    // Deallocates all blocks and returns this object to it's initialisation state
+    void reset()
+    {
+        fl1.reset();
+        fl2.reset();
+        fl3.reset();
+        fl4.reset();
+        allocated_bytes = 0;
+
+        void* cursor = mem;
+        
+        FLNode<block_size4>* node4;
+        FLNode<block_size4>* prev_node4 = nullptr;
+        while (cursor + node_size + block_size4 <= mem + total_bytes)
+        {
+            node4 = reinterpret_cast<FLNode<block_size4>*>(cursor);
+            node4->value = block_size4;
+            fl4.add_node(node4, prev_node4);
+
+            prev_node4 = node4;
+            cursor += node_size + block_size4;
+            allocated_bytes += node_size;
+        }
+
+        FLNode<block_size3>* node3;
+        FLNode<block_size3>* prev_node3 = nullptr;
+        while (cursor + node_size + block_size3 <= mem + total_bytes)
+        {
+            node3 = reinterpret_cast<FLNode<block_size3>*>(cursor);
+            node3->value = block_size3;
+            fl3.add_node(node3, prev_node3);
+
+            prev_node3 = node3;
+            cursor += node_size + block_size3;
+            allocated_bytes += node_size;
+        }
+
+        FLNode<block_size2>* node2;
+        FLNode<block_size2>* prev_node2 = nullptr;
+        while (cursor + node_size + block_size2 <= mem + total_bytes)
+        {
+            node2 = reinterpret_cast<FLNode<block_size2>*>(cursor);
+            node2->value = block_size2;
+            fl2.add_node(node2, prev_node2);
+
+            prev_node2 = node2;
+            cursor += node_size + block_size2;
+            allocated_bytes += node_size;
+        }
+
+        FLNode<smallest_block_size>* node;
+        FLNode<smallest_block_size>* prev_node = nullptr;
+        while (cursor + node_size + smallest_block_size <= mem + total_bytes)
+        {
+            node = reinterpret_cast<FLNode<smallest_block_size>*>(cursor);
+            node->value = smallest_block_size;
+            fl1.add_node(node, prev_node);
+
+            prev_node = node;
+            cursor += node_size + smallest_block_size;
+            allocated_bytes += node_size;
+        }
+    }
+
     // Returns number of bytes allocated to memory buffer.
     std::size_t allocated() const
     {

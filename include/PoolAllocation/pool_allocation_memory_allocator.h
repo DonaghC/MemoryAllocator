@@ -80,6 +80,32 @@ public:
         blocks_allocated--;
     }
 
+    // Deallocates all blocks and returns this object to it's initialisation state
+    void reset()
+    {
+        fl.reset();
+        allocated_bytes = node_size;
+        blocks_allocated = 0;
+
+        void* cursor = mem;
+        
+        FLNode* node = reinterpret_cast<FLNode*>(mem);
+        fl.add_node(node);
+        cursor += node_size + block_size;
+
+        FLNode* prev_node = node;
+
+        while (cursor + node_size + block_size <= mem + total_bytes)
+        {
+            node = reinterpret_cast<FLNode*>(cursor);
+            fl.add_node(node, prev_node);
+
+            prev_node = node;
+            cursor += node_size + block_size;
+            allocated_bytes += node_size;
+        }
+    }
+
     // Returns number of bytes allocated to memory buffer.
     std::size_t allocated() const
     {

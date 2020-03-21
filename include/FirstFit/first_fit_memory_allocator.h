@@ -115,6 +115,17 @@ public:
 
     }
 
+    // Deallocates all blocks and returns this object to it's initialisation state
+    void reset()
+    {
+        fl.reset();
+        allocated_bytes = node_size;
+        
+        FLNode* start_node = reinterpret_cast<FLNode*>(mem);
+        start_node->value = total_bytes - node_size;
+        fl.add_node(start_node);
+    }
+
     // Returns number of bytes allocated to memory buffer.
     std::size_t allocated() const
     {

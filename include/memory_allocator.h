@@ -14,6 +14,15 @@ public:
     // Deallocate a block of memory to free it up for re-allocation.
     virtual void deallocate(void* addr) = 0;
 
+    // Number of bytes allocated.
+    virtual std::size_t allocated() const = 0;
+
+    // Total number of available bytes in memory buffer.
+    virtual std::size_t length() const = 0;
+
+    // Deallocates all blocks and returns this object to it's initialisation state.
+    virtual void reset() = 0;
+
 };  // class MemoryAllocator
 
 #endif // MEMORY_ALLOCATOR_H

@@ -242,3 +242,55 @@ TEST(HeadNode, RemoveSmallestNode)
 
     EXPECT_EQ(fl.head(), node1);
 }
+
+TEST(Reset, MemberVariables)
+{
+    FirstFitFreeList fl;
+
+    std::array<std::uint8_t, 256> arr;
+    std::uint8_t* mem = arr.data();
+
+    FLNode* node1 = reinterpret_cast<FLNode*>(mem+50);
+    node1->value = 0;
+    fl.add_node(node1);
+
+    FLNode* node2 = reinterpret_cast<FLNode*>(mem);
+    node2->value = 1;
+    fl.add_node(node2);
+
+    fl.reset();
+
+    EXPECT_EQ(fl.head(), nullptr);
+    EXPECT_EQ(fl.count(), 0);
+}
+
+TEST(Reset, Reuse)
+{
+    FirstFitFreeList fl;
+
+    std::array<std::uint8_t, 256> arr;
+    std::uint8_t* mem = arr.data();
+
+    FLNode* node1 = reinterpret_cast<FLNode*>(mem+50);
+    node1->value = 0;
+    fl.add_node(node1);
+
+    FLNode* node2 = reinterpret_cast<FLNode*>(mem);
+    node2->value = 1;
+    fl.add_node(node2);
+
+    fl.reset();
+
+    FLNode* node3 = reinterpret_cast<FLNode*>(mem+50);
+    node1->value = 1;
+    fl.add_node(node1);
+
+    FLNode* node4 = reinterpret_cast<FLNode*>(mem);
+    node2->value = 0;
+    fl.add_node(node2);
+
+    EXPECT_EQ(fl.head(), node4);
+    EXPECT_EQ(fl.count(), 2);
+    EXPECT_EQ(node3, node1);
+    EXPECT_EQ(node4, node2);
+}
