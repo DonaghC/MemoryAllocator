@@ -60,49 +60,11 @@ CMAKE_SOURCE_DIR = /home/donagh/Documents/FYP
 CMAKE_BINARY_DIR = /home/donagh/Documents/FYP/build
 
 #=============================================================================
-# Target rules for target CMakeFiles/performance_tests2.dir
-
-# All Build rule for target.
-CMakeFiles/performance_tests2.dir/all: external/googletest/googletest/CMakeFiles/gtest.dir/all
-CMakeFiles/performance_tests2.dir/all: external/googletest/googletest/CMakeFiles/gtest_main.dir/all
-	$(MAKE) -f CMakeFiles/performance_tests2.dir/build.make CMakeFiles/performance_tests2.dir/depend
-	$(MAKE) -f CMakeFiles/performance_tests2.dir/build.make CMakeFiles/performance_tests2.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/donagh/Documents/FYP/build/CMakeFiles --progress-num=19,20 "Built target performance_tests2"
-.PHONY : CMakeFiles/performance_tests2.dir/all
-
-# Include target in all.
-all: CMakeFiles/performance_tests2.dir/all
-
-.PHONY : all
-
-# Build rule for subdir invocation for target.
-CMakeFiles/performance_tests2.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/donagh/Documents/FYP/build/CMakeFiles 6
-	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/performance_tests2.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/donagh/Documents/FYP/build/CMakeFiles 0
-.PHONY : CMakeFiles/performance_tests2.dir/rule
-
-# Convenience name for target.
-performance_tests2: CMakeFiles/performance_tests2.dir/rule
-
-.PHONY : performance_tests2
-
-# clean rule for target.
-CMakeFiles/performance_tests2.dir/clean:
-	$(MAKE) -f CMakeFiles/performance_tests2.dir/build.make CMakeFiles/performance_tests2.dir/clean
-.PHONY : CMakeFiles/performance_tests2.dir/clean
-
-# clean rule for target.
-clean: CMakeFiles/performance_tests2.dir/clean
-
-.PHONY : clean
-
-#=============================================================================
 # Target rules for target CMakeFiles/firstfit_test.dir
 
 # All Build rule for target.
-CMakeFiles/firstfit_test.dir/all: external/googletest/googletest/CMakeFiles/gtest.dir/all
 CMakeFiles/firstfit_test.dir/all: external/googletest/googletest/CMakeFiles/gtest_main.dir/all
+CMakeFiles/firstfit_test.dir/all: external/googletest/googletest/CMakeFiles/gtest.dir/all
 	$(MAKE) -f CMakeFiles/firstfit_test.dir/build.make CMakeFiles/firstfit_test.dir/depend
 	$(MAKE) -f CMakeFiles/firstfit_test.dir/build.make CMakeFiles/firstfit_test.dir/build
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/donagh/Documents/FYP/build/CMakeFiles --progress-num=5,6 "Built target firstfit_test"
@@ -136,11 +98,49 @@ clean: CMakeFiles/firstfit_test.dir/clean
 .PHONY : clean
 
 #=============================================================================
+# Target rules for target CMakeFiles/fragmentation_tests.dir
+
+# All Build rule for target.
+CMakeFiles/fragmentation_tests.dir/all: external/googletest/googletest/CMakeFiles/gtest_main.dir/all
+CMakeFiles/fragmentation_tests.dir/all: external/googletest/googletest/CMakeFiles/gtest.dir/all
+	$(MAKE) -f CMakeFiles/fragmentation_tests.dir/build.make CMakeFiles/fragmentation_tests.dir/depend
+	$(MAKE) -f CMakeFiles/fragmentation_tests.dir/build.make CMakeFiles/fragmentation_tests.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/donagh/Documents/FYP/build/CMakeFiles --progress-num=7,8 "Built target fragmentation_tests"
+.PHONY : CMakeFiles/fragmentation_tests.dir/all
+
+# Include target in all.
+all: CMakeFiles/fragmentation_tests.dir/all
+
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/fragmentation_tests.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/donagh/Documents/FYP/build/CMakeFiles 6
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/fragmentation_tests.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/donagh/Documents/FYP/build/CMakeFiles 0
+.PHONY : CMakeFiles/fragmentation_tests.dir/rule
+
+# Convenience name for target.
+fragmentation_tests: CMakeFiles/fragmentation_tests.dir/rule
+
+.PHONY : fragmentation_tests
+
+# clean rule for target.
+CMakeFiles/fragmentation_tests.dir/clean:
+	$(MAKE) -f CMakeFiles/fragmentation_tests.dir/build.make CMakeFiles/fragmentation_tests.dir/clean
+.PHONY : CMakeFiles/fragmentation_tests.dir/clean
+
+# clean rule for target.
+clean: CMakeFiles/fragmentation_tests.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
 # Target rules for target CMakeFiles/firstfit_freelist_test.dir
 
 # All Build rule for target.
-CMakeFiles/firstfit_freelist_test.dir/all: external/googletest/googletest/CMakeFiles/gtest.dir/all
 CMakeFiles/firstfit_freelist_test.dir/all: external/googletest/googletest/CMakeFiles/gtest_main.dir/all
+CMakeFiles/firstfit_freelist_test.dir/all: external/googletest/googletest/CMakeFiles/gtest.dir/all
 	$(MAKE) -f CMakeFiles/firstfit_freelist_test.dir/build.make CMakeFiles/firstfit_freelist_test.dir/depend
 	$(MAKE) -f CMakeFiles/firstfit_freelist_test.dir/build.make CMakeFiles/firstfit_freelist_test.dir/build
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/donagh/Documents/FYP/build/CMakeFiles --progress-num=3,4 "Built target firstfit_freelist_test"
@@ -177,11 +177,11 @@ clean: CMakeFiles/firstfit_freelist_test.dir/clean
 # Target rules for target CMakeFiles/nextfit_test.dir
 
 # All Build rule for target.
-CMakeFiles/nextfit_test.dir/all: external/googletest/googletest/CMakeFiles/gtest.dir/all
 CMakeFiles/nextfit_test.dir/all: external/googletest/googletest/CMakeFiles/gtest_main.dir/all
+CMakeFiles/nextfit_test.dir/all: external/googletest/googletest/CMakeFiles/gtest.dir/all
 	$(MAKE) -f CMakeFiles/nextfit_test.dir/build.make CMakeFiles/nextfit_test.dir/depend
 	$(MAKE) -f CMakeFiles/nextfit_test.dir/build.make CMakeFiles/nextfit_test.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/donagh/Documents/FYP/build/CMakeFiles --progress-num=15,16 "Built target nextfit_test"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/donagh/Documents/FYP/build/CMakeFiles --progress-num=17,18 "Built target nextfit_test"
 .PHONY : CMakeFiles/nextfit_test.dir/all
 
 # Include target in all.
@@ -215,8 +215,8 @@ clean: CMakeFiles/nextfit_test.dir/clean
 # Target rules for target CMakeFiles/poolallocation_test.dir
 
 # All Build rule for target.
-CMakeFiles/poolallocation_test.dir/all: external/googletest/googletest/CMakeFiles/gtest.dir/all
 CMakeFiles/poolallocation_test.dir/all: external/googletest/googletest/CMakeFiles/gtest_main.dir/all
+CMakeFiles/poolallocation_test.dir/all: external/googletest/googletest/CMakeFiles/gtest.dir/all
 	$(MAKE) -f CMakeFiles/poolallocation_test.dir/build.make CMakeFiles/poolallocation_test.dir/depend
 	$(MAKE) -f CMakeFiles/poolallocation_test.dir/build.make CMakeFiles/poolallocation_test.dir/build
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/donagh/Documents/FYP/build/CMakeFiles --progress-num=21,22 "Built target poolallocation_test"
@@ -253,11 +253,11 @@ clean: CMakeFiles/poolallocation_test.dir/clean
 # Target rules for target CMakeFiles/performance_tests.dir
 
 # All Build rule for target.
-CMakeFiles/performance_tests.dir/all: external/googletest/googletest/CMakeFiles/gtest.dir/all
 CMakeFiles/performance_tests.dir/all: external/googletest/googletest/CMakeFiles/gtest_main.dir/all
+CMakeFiles/performance_tests.dir/all: external/googletest/googletest/CMakeFiles/gtest.dir/all
 	$(MAKE) -f CMakeFiles/performance_tests.dir/build.make CMakeFiles/performance_tests.dir/depend
 	$(MAKE) -f CMakeFiles/performance_tests.dir/build.make CMakeFiles/performance_tests.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/donagh/Documents/FYP/build/CMakeFiles --progress-num=17,18 "Built target performance_tests"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/donagh/Documents/FYP/build/CMakeFiles --progress-num=19,20 "Built target performance_tests"
 .PHONY : CMakeFiles/performance_tests.dir/all
 
 # Include target in all.
@@ -291,8 +291,8 @@ clean: CMakeFiles/performance_tests.dir/clean
 # Target rules for target CMakeFiles/buddysystem_test.dir
 
 # All Build rule for target.
-CMakeFiles/buddysystem_test.dir/all: external/googletest/googletest/CMakeFiles/gtest.dir/all
 CMakeFiles/buddysystem_test.dir/all: external/googletest/googletest/CMakeFiles/gtest_main.dir/all
+CMakeFiles/buddysystem_test.dir/all: external/googletest/googletest/CMakeFiles/gtest.dir/all
 	$(MAKE) -f CMakeFiles/buddysystem_test.dir/build.make CMakeFiles/buddysystem_test.dir/depend
 	$(MAKE) -f CMakeFiles/buddysystem_test.dir/build.make CMakeFiles/buddysystem_test.dir/build
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/donagh/Documents/FYP/build/CMakeFiles --progress-num=1,2 "Built target buddysystem_test"
@@ -369,11 +369,11 @@ external/googletest/googlemock/preinstall: external/googletest/googletest/preins
 # Target rules for target external/googletest/googlemock/CMakeFiles/gmock_main.dir
 
 # All Build rule for target.
-external/googletest/googlemock/CMakeFiles/gmock_main.dir/all: external/googletest/googletest/CMakeFiles/gtest.dir/all
 external/googletest/googlemock/CMakeFiles/gmock_main.dir/all: external/googletest/googlemock/CMakeFiles/gmock.dir/all
+external/googletest/googlemock/CMakeFiles/gmock_main.dir/all: external/googletest/googletest/CMakeFiles/gtest.dir/all
 	$(MAKE) -f external/googletest/googlemock/CMakeFiles/gmock_main.dir/build.make external/googletest/googlemock/CMakeFiles/gmock_main.dir/depend
 	$(MAKE) -f external/googletest/googlemock/CMakeFiles/gmock_main.dir/build.make external/googletest/googlemock/CMakeFiles/gmock_main.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/donagh/Documents/FYP/build/CMakeFiles --progress-num=9,10 "Built target gmock_main"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/donagh/Documents/FYP/build/CMakeFiles --progress-num=11,12 "Built target gmock_main"
 .PHONY : external/googletest/googlemock/CMakeFiles/gmock_main.dir/all
 
 # Include target in all.
@@ -410,7 +410,7 @@ clean: external/googletest/googlemock/CMakeFiles/gmock_main.dir/clean
 external/googletest/googlemock/CMakeFiles/gmock.dir/all: external/googletest/googletest/CMakeFiles/gtest.dir/all
 	$(MAKE) -f external/googletest/googlemock/CMakeFiles/gmock.dir/build.make external/googletest/googlemock/CMakeFiles/gmock.dir/depend
 	$(MAKE) -f external/googletest/googlemock/CMakeFiles/gmock.dir/build.make external/googletest/googlemock/CMakeFiles/gmock.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/donagh/Documents/FYP/build/CMakeFiles --progress-num=7,8 "Built target gmock"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/donagh/Documents/FYP/build/CMakeFiles --progress-num=9,10 "Built target gmock"
 .PHONY : external/googletest/googlemock/CMakeFiles/gmock.dir/all
 
 # Include target in all.
@@ -467,7 +467,7 @@ external/googletest/googletest/preinstall:
 external/googletest/googletest/CMakeFiles/gtest_main.dir/all: external/googletest/googletest/CMakeFiles/gtest.dir/all
 	$(MAKE) -f external/googletest/googletest/CMakeFiles/gtest_main.dir/build.make external/googletest/googletest/CMakeFiles/gtest_main.dir/depend
 	$(MAKE) -f external/googletest/googletest/CMakeFiles/gtest_main.dir/build.make external/googletest/googletest/CMakeFiles/gtest_main.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/donagh/Documents/FYP/build/CMakeFiles --progress-num=13,14 "Built target gtest_main"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/donagh/Documents/FYP/build/CMakeFiles --progress-num=15,16 "Built target gtest_main"
 .PHONY : external/googletest/googletest/CMakeFiles/gtest_main.dir/all
 
 # Include target in all.
@@ -504,7 +504,7 @@ clean: external/googletest/googletest/CMakeFiles/gtest_main.dir/clean
 external/googletest/googletest/CMakeFiles/gtest.dir/all:
 	$(MAKE) -f external/googletest/googletest/CMakeFiles/gtest.dir/build.make external/googletest/googletest/CMakeFiles/gtest.dir/depend
 	$(MAKE) -f external/googletest/googletest/CMakeFiles/gtest.dir/build.make external/googletest/googletest/CMakeFiles/gtest.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/donagh/Documents/FYP/build/CMakeFiles --progress-num=11,12 "Built target gtest"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/donagh/Documents/FYP/build/CMakeFiles --progress-num=13,14 "Built target gtest"
 .PHONY : external/googletest/googletest/CMakeFiles/gtest.dir/all
 
 # Include target in all.

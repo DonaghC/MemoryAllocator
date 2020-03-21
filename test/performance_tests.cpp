@@ -2,6 +2,7 @@
 #include <chrono>
 #include <cstddef>
 #include <string>
+#include <tuple>
 
 #include <gtest/gtest.h>
 
@@ -11,12 +12,11 @@
 #include "PoolAllocation/pool_allocation_memory_allocator.h"
 #include "BuddySystem/buddy_system_memory_allocator.h"
 
-using FLNode_FF = FirstFitFreeList::DLLNode;
 const std::size_t NODESIZE_FF = FirstFitMemoryAllocator::node_size;
 const std::size_t NODESIZE_PA = PoolAllocationMemoryAllocator<0>::node_size;
 const std::size_t NODESIZE_BS = BuddySystemMemoryAllocator<0>::node_size;
 
-const std::array<std::string, 5> STRINGS = {"FirstFit:\t\t\t", "NextFit:\t\t\t", "PoolAllocation:\t\t\t", "BuddySystem:\t\t\t", "BuddySystem (large alloc):\t"};
+const std::array<std::string, 5> ROWS = {"FirstFit:\t\t\t", "NextFit:\t\t\t", "PoolAllocation:\t\t\t", "BuddySystem:\t\t\t", "BuddySystem (large alloc):\t"};
 
 TEST(Allocation, First_NTimes)
 {
@@ -69,7 +69,7 @@ TEST(Allocation, First_NTimes)
                 i++;
             }
 
-            std::cout << "\t" << STRINGS[m] << time/1000000 << "ms\n";
+            std::cout << "\t" << ROWS[m] << time/1000000 << "ms\n";
         }
     }
 }
@@ -139,7 +139,7 @@ TEST(Allocation, NTimes)
             {
                 if (n == 2)
                 {
-                    std::cout << "\t" << STRINGS[4] << "Buffer too large\n";
+                    std::cout << "\t" << ROWS[4] << "Buffer too large\n";
                     break;
                 }
                 bytes_number = bytes_alloc_large;
@@ -156,7 +156,7 @@ TEST(Allocation, NTimes)
 
             double time = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
 
-            std::cout << "\t" << STRINGS[m%5] << time/1000000 << "ms\n";
+            std::cout << "\t" << ROWS[m%5] << time/1000000 << "ms\n";
         }
     }
 }
@@ -253,7 +253,7 @@ TEST(Allocation, NFreeBlocks)
 
         double time = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
 
-        std::cout << "\t" << STRINGS[m%5] << time/1000000 << "ms\n";
+        std::cout << "\t" << ROWS[m%5] << time/1000000 << "ms\n";
     }
 
     std::cout << "N=" << sizeN[1] << "\n";
@@ -301,10 +301,10 @@ TEST(Allocation, NFreeBlocks)
 
         double time = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
 
-        std::cout << "\t" << STRINGS[m%5] << time/1000000 << "ms\n";
+        std::cout << "\t" << ROWS[m%5] << time/1000000 << "ms\n";
     }
-    std::cout << "\t" << STRINGS[3] << "Buffer too large\n";
-    std::cout << "\t" << STRINGS[4] << "Buffer too large\n";
+    std::cout << "\t" << ROWS[3] << "Buffer too large\n";
+    std::cout << "\t" << ROWS[4] << "Buffer too large\n";
 
     std::cout << "N=" << sizeN[2] << "\n";
     for (int m=0; m<2; m++)
@@ -351,11 +351,11 @@ TEST(Allocation, NFreeBlocks)
 
         double time = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
 
-        std::cout << "\t" << STRINGS[m%5] << time/1000000 << "ms\n";
+        std::cout << "\t" << ROWS[m%5] << time/1000000 << "ms\n";
     }
-    std::cout << "\t" << STRINGS[2] << "Buffer too large\n";
-    std::cout << "\t" << STRINGS[3] << "Buffer too large\n";
-    std::cout << "\t" << STRINGS[4] << "Buffer too large\n";
+    std::cout << "\t" << ROWS[2] << "Buffer too large\n";
+    std::cout << "\t" << ROWS[3] << "Buffer too large\n";
+    std::cout << "\t" << ROWS[4] << "Buffer too large\n";
 }
 
 TEST(Allocation, NoSpace_NFreeBlocks_TooSmall)
@@ -431,11 +431,11 @@ TEST(Allocation, NoSpace_NFreeBlocks_TooSmall)
 
         double time = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
         
-        std::cout << "\t" << STRINGS[m%5] << time/1000000 << "ms\n";
+        std::cout << "\t" << ROWS[m%5] << time/1000000 << "ms\n";
     }
-    std::cout << "\t" << STRINGS[2] << "N/A\n";
-    std::cout << "\t" << STRINGS[3] << "N/A\n";
-    std::cout << "\t" << STRINGS[4] << "N/A\n";
+    std::cout << "\t" << ROWS[2] << "N/A\n";
+    std::cout << "\t" << ROWS[3] << "N/A\n";
+    std::cout << "\t" << ROWS[4] << "N/A\n";
 
     std::cout << "N=" << sizeN[1] << "\n";
     for (int m=0; m<2; m++)
@@ -479,11 +479,11 @@ TEST(Allocation, NoSpace_NFreeBlocks_TooSmall)
 
         double time = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
         
-        std::cout << "\t" << STRINGS[m%5] << time/1000000 << "ms\n";
+        std::cout << "\t" << ROWS[m%5] << time/1000000 << "ms\n";
     }
-    std::cout << "\t" << STRINGS[2] << "N/A\n";
-    std::cout << "\t" << STRINGS[3] << "N/A\n";
-    std::cout << "\t" << STRINGS[4] << "N/A\n";
+    std::cout << "\t" << ROWS[2] << "N/A\n";
+    std::cout << "\t" << ROWS[3] << "N/A\n";
+    std::cout << "\t" << ROWS[4] << "N/A\n";
 
     std::cout << "N=" << sizeN[2] << "\n";
     for (int m=0; m<2; m++)
@@ -527,11 +527,11 @@ TEST(Allocation, NoSpace_NFreeBlocks_TooSmall)
 
         double time = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
         
-        std::cout << "\t" << STRINGS[m%5] << time/1000000 << "ms\n";
+        std::cout << "\t" << ROWS[m%5] << time/1000000 << "ms\n";
     }
-    std::cout << "\t" << STRINGS[2] << "N/A\n";
-    std::cout << "\t" << STRINGS[3] << "N/A\n";
-    std::cout << "\t" << STRINGS[4] << "N/A\n";
+    std::cout << "\t" << ROWS[2] << "N/A\n";
+    std::cout << "\t" << ROWS[3] << "N/A\n";
+    std::cout << "\t" << ROWS[4] << "N/A\n";
 }
 
 TEST(Deallocation, First_NTimes)
@@ -585,7 +585,7 @@ TEST(Deallocation, First_NTimes)
                 i++;
             }
 
-            std::cout << "\t" << STRINGS[m] << time/1000000 << "ms\n";
+            std::cout << "\t" << ROWS[m] << time/1000000 << "ms\n";
         }
     }
 }
@@ -646,7 +646,7 @@ TEST(Deallocation, MergePrev_NTimes)
         }
         else if (m == 2)
         {
-            std::cout << "\t" << STRINGS[2] << "N/A\n";
+            std::cout << "\t" << ROWS[2] << "N/A\n";
             continue;
         }
         
@@ -682,7 +682,7 @@ TEST(Deallocation, MergePrev_NTimes)
             i2++;
         }
         
-        std::cout << "\t" << STRINGS[m%5] << time/1000000 << "ms\n";
+        std::cout << "\t" << ROWS[m%5] << time/1000000 << "ms\n";
     }
 
     std::cout << "N=" << sizeN[1] << "\n";
@@ -695,7 +695,7 @@ TEST(Deallocation, MergePrev_NTimes)
         }
         else if (m == 2)
         {
-            std::cout << "\t" << STRINGS[2] << "N/A\n";
+            std::cout << "\t" << ROWS[2] << "N/A\n";
             continue;
         }
         
@@ -731,7 +731,7 @@ TEST(Deallocation, MergePrev_NTimes)
             i2++;
         }
         
-        std::cout << "\t" << STRINGS[m%5] << time/1000000 << "ms\n";
+        std::cout << "\t" << ROWS[m%5] << time/1000000 << "ms\n";
     }
 
     std::cout << "N=" << sizeN[2] << "\n";
@@ -741,12 +741,12 @@ TEST(Deallocation, MergePrev_NTimes)
 
         if (m == 2)
         {
-            std::cout << "\t" << STRINGS[m] << "N/A\n";
+            std::cout << "\t" << ROWS[m] << "N/A\n";
             continue;
         }
         else if (m == 4)
         {
-            std::cout << "\t" << STRINGS[m] << "Buffer too large\n";
+            std::cout << "\t" << ROWS[m] << "Buffer too large\n";
             break;
         }
         
@@ -782,7 +782,7 @@ TEST(Deallocation, MergePrev_NTimes)
             i2++;
         }
         
-        std::cout << "\t" << STRINGS[m%5] << time/1000000 << "ms\n";
+        std::cout << "\t" << ROWS[m%5] << time/1000000 << "ms\n";
     }
 }
 
@@ -842,7 +842,7 @@ TEST(Deallocation, MergeNext_NTimes)
         }
         else if (m == 2)
         {
-            std::cout << "\t" << STRINGS[2] << "N/A\n";
+            std::cout << "\t" << ROWS[2] << "N/A\n";
             continue;
         }
         
@@ -878,7 +878,7 @@ TEST(Deallocation, MergeNext_NTimes)
             i2++;
         }
         
-        std::cout << "\t" << STRINGS[m%5] << time/1000000 << "ms\n";
+        std::cout << "\t" << ROWS[m%5] << time/1000000 << "ms\n";
     }
 
     std::cout << "N=" << sizeN[1] << "\n";
@@ -891,7 +891,7 @@ TEST(Deallocation, MergeNext_NTimes)
         }
         else if (m == 2)
         {
-            std::cout << "\t" << STRINGS[2] << "N/A\n";
+            std::cout << "\t" << ROWS[2] << "N/A\n";
             continue;
         }
         
@@ -927,7 +927,7 @@ TEST(Deallocation, MergeNext_NTimes)
             i2++;
         }
         
-        std::cout << "\t" << STRINGS[m%5] << time/1000000 << "ms\n";
+        std::cout << "\t" << ROWS[m%5] << time/1000000 << "ms\n";
     }
 
     std::cout << "N=" << sizeN[2] << "\n";
@@ -937,12 +937,12 @@ TEST(Deallocation, MergeNext_NTimes)
 
         if (m == 2)
         {
-            std::cout << "\t" << STRINGS[m] << "N/A\n";
+            std::cout << "\t" << ROWS[m] << "N/A\n";
             continue;
         }
         else if (m == 4)
         {
-            std::cout << "\t" << STRINGS[m] << "Buffer too large\n";
+            std::cout << "\t" << ROWS[m] << "Buffer too large\n";
             break;
         }
         
@@ -978,7 +978,7 @@ TEST(Deallocation, MergeNext_NTimes)
             i2++;
         }
         
-        std::cout << "\t" << STRINGS[m%5] << time/1000000 << "ms\n";
+        std::cout << "\t" << ROWS[m%5] << time/1000000 << "ms\n";
     }
 }
 
@@ -1032,7 +1032,7 @@ TEST(Deallocation, MergePrevNext_NTimes)
         }
         else if (m == 2)
         {
-            std::cout << "\t" << STRINGS[2] << "N/A\n";
+            std::cout << "\t" << ROWS[2] << "N/A\n";
             continue;
         }
         
@@ -1079,7 +1079,7 @@ TEST(Deallocation, MergePrevNext_NTimes)
             i3++;
         }
         
-        std::cout << "\t" << STRINGS[m%5] << time/1000000 << "ms\n";
+        std::cout << "\t" << ROWS[m%5] << time/1000000 << "ms\n";
     }
 
     std::cout << "N=" << sizeN[1] << "\n";
@@ -1089,12 +1089,12 @@ TEST(Deallocation, MergePrevNext_NTimes)
 
         if (m == 4)
         {
-            std::cout << "\t" << STRINGS[4] << "Buffer too large\n";
+            std::cout << "\t" << ROWS[4] << "Buffer too large\n";
             break;
         }
         else if (m == 2)
         {
-            std::cout << "\t" << STRINGS[2] << "N/A\n";
+            std::cout << "\t" << ROWS[2] << "N/A\n";
             continue;
         }
         
@@ -1141,7 +1141,7 @@ TEST(Deallocation, MergePrevNext_NTimes)
             i3++;
         }
         
-        std::cout << "\t" << STRINGS[m%5] << time/1000000 << "ms\n";
+        std::cout << "\t" << ROWS[m%5] << time/1000000 << "ms\n";
     }
 
     std::cout << "N=" << sizeN[2] << "\n";
@@ -1192,9 +1192,9 @@ TEST(Deallocation, MergePrevNext_NTimes)
             i3++;
         }
         
-        std::cout << "\t" << STRINGS[m%5] << time/1000000 << "ms\n";
+        std::cout << "\t" << ROWS[m%5] << time/1000000 << "ms\n";
     }
-    std::cout << "\t" << STRINGS[2] << "N/A\n";
-    std::cout << "\t" << STRINGS[3] << "Buffer too large\n";
-    std::cout << "\t" << STRINGS[4] << "Buffer too large\n";
+    std::cout << "\t" << ROWS[2] << "N/A\n";
+    std::cout << "\t" << ROWS[3] << "Buffer too large\n";
+    std::cout << "\t" << ROWS[4] << "Buffer too large\n";
 }

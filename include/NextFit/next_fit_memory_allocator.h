@@ -97,9 +97,7 @@ public:
     {
         void* newnode_addr = addr - node_size;
         FLNode* node = reinterpret_cast<FLNode*>(newnode_addr);
-        fl.add_node(node); // to update prev and next
-
-        FLNode* new_cursor = node;
+        fl.add_node(node);
 
         bool merge_with_prev = false;
         bool merge_with_next = false;
@@ -113,42 +111,52 @@ public:
         {
             merge_with_next = newnode_addr + node_size + node->value == node->next;
         }
-        
+
         if (merge_with_next && merge_with_prev)
         {
+            if (cursor == node->next)
+            {
+                if (node->next->next == nullptr)
+                {
+                    cursor = fl.head();
+                }
+                else
+                {
+                    cursor = node->next->next;
+                }
+            }
+
             fl.remove_node(node);
             node->prev->value += (2*node_size) + node->value + node->next->value;
             fl.remove_node(node->next);
             allocated_bytes -= (2*node_size + node->value);
-
-            new_cursor = node->prev;
         }
         else if (merge_with_next)
         {
+            if (cursor == node->next)
+            {
+                cursor = node;
+            }
+
             FLNode* removed = fl.remove_node(node->next);
             allocated_bytes -= (node_size + node->value);
             node->value += node_size + removed->value;
-
-            new_cursor = node;
         }
         else if (merge_with_prev)
         {
             fl.remove_node(node);
             node->prev->value += node_size + node->value;
             allocated_bytes -= (node_size + node->value);
-
-            new_cursor = node->prev;
         }
         else
         {
             allocated_bytes -= node->value;
-        }
 
-        if (cursor == nullptr || cursor == addr+32)
-        {
-            cursor = new_cursor;
+            if (fl.count() == 1)
+            {
+                cursor = node;
+            }
         }
-
     }
 
     // Deallocates all blocks and returns this object to it's initialisation state

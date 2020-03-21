@@ -31,3 +31,7 @@ add_test(poolallocation_test poolallocation_test)
 add_executable(buddysystem_test test/BuddySystem/buddy_system_tests.cpp)
 target_link_libraries(buddysystem_test gtest gtest_main)
 add_test(buddysystem_test buddysystem_test)
+
+add_executable(fragmentation_tests test/fragmentation_tests.cpp)
+target_link_libraries(fragmentation_tests gtest gtest_main)
+add_test(fragmentation_tests fragmentation_tests)

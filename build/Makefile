@@ -168,19 +168,6 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named performance_tests2
-
-# Build rule for target.
-performance_tests2: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 performance_tests2
-.PHONY : performance_tests2
-
-# fast build rule for target.
-performance_tests2/fast:
-	$(MAKE) -f CMakeFiles/performance_tests2.dir/build.make CMakeFiles/performance_tests2.dir/build
-.PHONY : performance_tests2/fast
-
-#=============================================================================
 # Target rules for targets named firstfit_test
 
 # Build rule for target.
@@ -192,6 +179,19 @@ firstfit_test: cmake_check_build_system
 firstfit_test/fast:
 	$(MAKE) -f CMakeFiles/firstfit_test.dir/build.make CMakeFiles/firstfit_test.dir/build
 .PHONY : firstfit_test/fast
+
+#=============================================================================
+# Target rules for targets named fragmentation_tests
+
+# Build rule for target.
+fragmentation_tests: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 fragmentation_tests
+.PHONY : fragmentation_tests
+
+# fast build rule for target.
+fragmentation_tests/fast:
+	$(MAKE) -f CMakeFiles/fragmentation_tests.dir/build.make CMakeFiles/fragmentation_tests.dir/build
+.PHONY : fragmentation_tests/fast
 
 #=============================================================================
 # Target rules for targets named firstfit_freelist_test
@@ -445,6 +445,33 @@ test/PoolAllocation/pool_allocation_tests.cpp.s:
 	$(MAKE) -f CMakeFiles/poolallocation_test.dir/build.make CMakeFiles/poolallocation_test.dir/test/PoolAllocation/pool_allocation_tests.cpp.s
 .PHONY : test/PoolAllocation/pool_allocation_tests.cpp.s
 
+test/fragmentation_tests.o: test/fragmentation_tests.cpp.o
+
+.PHONY : test/fragmentation_tests.o
+
+# target to build an object file
+test/fragmentation_tests.cpp.o:
+	$(MAKE) -f CMakeFiles/fragmentation_tests.dir/build.make CMakeFiles/fragmentation_tests.dir/test/fragmentation_tests.cpp.o
+.PHONY : test/fragmentation_tests.cpp.o
+
+test/fragmentation_tests.i: test/fragmentation_tests.cpp.i
+
+.PHONY : test/fragmentation_tests.i
+
+# target to preprocess a source file
+test/fragmentation_tests.cpp.i:
+	$(MAKE) -f CMakeFiles/fragmentation_tests.dir/build.make CMakeFiles/fragmentation_tests.dir/test/fragmentation_tests.cpp.i
+.PHONY : test/fragmentation_tests.cpp.i
+
+test/fragmentation_tests.s: test/fragmentation_tests.cpp.s
+
+.PHONY : test/fragmentation_tests.s
+
+# target to generate assembly for a file
+test/fragmentation_tests.cpp.s:
+	$(MAKE) -f CMakeFiles/fragmentation_tests.dir/build.make CMakeFiles/fragmentation_tests.dir/test/fragmentation_tests.cpp.s
+.PHONY : test/fragmentation_tests.cpp.s
+
 test/performance_tests.o: test/performance_tests.cpp.o
 
 .PHONY : test/performance_tests.o
@@ -472,33 +499,6 @@ test/performance_tests.cpp.s:
 	$(MAKE) -f CMakeFiles/performance_tests.dir/build.make CMakeFiles/performance_tests.dir/test/performance_tests.cpp.s
 .PHONY : test/performance_tests.cpp.s
 
-test/performance_tests2.o: test/performance_tests2.cpp.o
-
-.PHONY : test/performance_tests2.o
-
-# target to build an object file
-test/performance_tests2.cpp.o:
-	$(MAKE) -f CMakeFiles/performance_tests2.dir/build.make CMakeFiles/performance_tests2.dir/test/performance_tests2.cpp.o
-.PHONY : test/performance_tests2.cpp.o
-
-test/performance_tests2.i: test/performance_tests2.cpp.i
-
-.PHONY : test/performance_tests2.i
-
-# target to preprocess a source file
-test/performance_tests2.cpp.i:
-	$(MAKE) -f CMakeFiles/performance_tests2.dir/build.make CMakeFiles/performance_tests2.dir/test/performance_tests2.cpp.i
-.PHONY : test/performance_tests2.cpp.i
-
-test/performance_tests2.s: test/performance_tests2.cpp.s
-
-.PHONY : test/performance_tests2.s
-
-# target to generate assembly for a file
-test/performance_tests2.cpp.s:
-	$(MAKE) -f CMakeFiles/performance_tests2.dir/build.make CMakeFiles/performance_tests2.dir/test/performance_tests2.cpp.s
-.PHONY : test/performance_tests2.cpp.s
-
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -510,8 +510,8 @@ help:
 	@echo "... edit_cache"
 	@echo "... install/local"
 	@echo "... test"
-	@echo "... performance_tests2"
 	@echo "... firstfit_test"
+	@echo "... fragmentation_tests"
 	@echo "... firstfit_freelist_test"
 	@echo "... list_install_components"
 	@echo "... nextfit_test"
@@ -538,12 +538,12 @@ help:
 	@echo "... test/PoolAllocation/pool_allocation_tests.o"
 	@echo "... test/PoolAllocation/pool_allocation_tests.i"
 	@echo "... test/PoolAllocation/pool_allocation_tests.s"
+	@echo "... test/fragmentation_tests.o"
+	@echo "... test/fragmentation_tests.i"
+	@echo "... test/fragmentation_tests.s"
 	@echo "... test/performance_tests.o"
 	@echo "... test/performance_tests.i"
 	@echo "... test/performance_tests.s"
-	@echo "... test/performance_tests2.o"
-	@echo "... test/performance_tests2.i"
-	@echo "... test/performance_tests2.s"
 .PHONY : help
 
 
