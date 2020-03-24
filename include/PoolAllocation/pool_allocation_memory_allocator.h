@@ -11,7 +11,6 @@
 template<std::size_t block_size>
 class PoolAllocationMemoryAllocator : public MemoryAllocator
 {
-
 public:
 
     // Type of free list node

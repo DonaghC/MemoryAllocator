@@ -8,8 +8,8 @@
 #include "memory_allocator.h"
 
 // Implementation of a memory allocator that uses a variation on the buddy system algorithm to allocate memory.
-// The variation is that instead of using free lists that double in size, this uses free lists to double in size plus room
-// for a new node. This is because of the use of a free list to keep track of every node.
+//  The variation is that instead of using free lists that double in size, this uses free lists to double in size plus room
+//  for a new node. This is because of the use of a free list to keep track of every node.
 template<std::size_t smallest_block_size>
 class BuddySystemMemoryAllocator : public MemoryAllocator
 {
@@ -359,6 +359,9 @@ private:
         allocated_bytes -= block_size;
     }
 
+    // Starts by checking if 'node' can be merged with adjacent nodes in free list 'fl' and if it
+    //  can be merged it will merge it with the appropriate node, add it to the next largest free
+    //  list and check if that node can merged.
     template <std::size_t block_size>
     bool merge_recursively(FLNode<block_size>* node, BuddySystemFreeList<block_size> &fl)
     {

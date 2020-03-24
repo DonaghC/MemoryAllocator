@@ -3,11 +3,14 @@
 
 #include <cstddef>
 
+// Singly linked list data structure used for keeping track of free blocks of memory in memory
+//  memory allocator objects.
 template <std::size_t block_size>
 class BuddySystemFreeList
 {
 public:
 
+    // Singly linked list node used in free list.
     struct SLLNode
     {
         std::size_t value;
