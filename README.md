@@ -60,11 +60,27 @@ The signature for this method must be as follows:
 
 ## How to build
 
-This project is built using CMAKE as follows:
+To pull from GitHub:
+
+```
+git clone https://github.com/deniscasey/MemoryAllocator.git
+cd MemoryAllocator
+git submodule update --init --recursive
+```
+
+This project is built using CMake as follows:
 
 ```
 mkdir tmp
 cd tmp
 cmake ..
 make
+```
+
+Note: All the warnings are simply from my use of void pointers.
+
+From here you can run any of the test files:
+
+```
+./TEST_FILE
 ```
