@@ -3,21 +3,25 @@
 
 #include <cstddef>
 
-#include "free_list.h"
-
 // Abstract class (interface) for a memory allocator class.
 class MemoryAllocator
 {
 public:
 
-    // Type of free list node.
-    using FLNode = FreeList::DLLNode;
-
     // Allocate a number of bytes and return the address of the allocation.
     virtual void* allocate(std::size_t bytes) = 0;
 
     // Deallocate a block of memory to free it up for re-allocation.
-    virtual void deallocate(FLNode* addr) = 0;
+    virtual void deallocate(void* addr) = 0;
+
+    // Number of bytes allocated.
+    virtual std::size_t allocated() const = 0;
+
+    // Total number of available bytes in memory buffer.
+    virtual std::size_t length() const = 0;
+
+    // Deallocates all blocks and returns this object to it's initialisation state.
+    virtual void reset() = 0;
 
 };  // class MemoryAllocator
 
